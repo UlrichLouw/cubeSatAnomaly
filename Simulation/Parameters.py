@@ -319,7 +319,8 @@ class SET_PARAMS:
     faultNames = ["None",
                 "Reflection",
                 "MoonOnHorizon",
-                "solarPanelDipole"]
+                "solarPanelDipole",
+                'catastrophicReactionWheel']
                 # ,
                 # "Earth_sensor_high_noise",
                 # "Magnetometer_sensor_high_noise", 
@@ -339,6 +340,8 @@ class SET_PARAMS:
     starTrackerFailures = ["Closed_shutter"]
 
     magnetometerFailures = ["Magnetometer_sensor_high_noise", "Interference_magnetic", "Stop_magnetometers", 'solarPanelDipole']
+
+    reactionWheelFailures = ['catastrophicReactionWheel']
 
     # faultNames = ["None", 
     # "Electronics_of_RW", 
@@ -388,7 +391,7 @@ class SET_PARAMS:
     star_tracker_noise = 1e-4
 
     # Magnetometer
-    Magnetometer_noise = 7e-2         #standard deviation of magnetometer noise in Tesla
+    Magnetometer_noise = 1e-2         #standard deviation of magnetometer noise in Tesla
     Magnetometer_position = np.array(([Lx/3, Ly/3, Lz/3]))
 
     # Earth sensor
@@ -634,11 +637,11 @@ class Reaction_wheels(Fault_parameters):
         return angular_wheels
 
     def Catastrophic_RW(self, angular_wheels):
-        if self.first:
-            self.angular_failed_wheel = angular_wheels[self.number_of_failed_wheels]
-            self.first = 0
-        self.angular_failed_wheel = np.zeros(self.number) if self.failure == "Catastrophic_RW" else self.angular_failed_wheel
-        angular_wheels[self.number_of_failed_wheels] = self.angular_failed_wheel
+        if self.failure == 'catastrophicReactionWheel':
+            angular_wheels[1] = 0
+        #     self.first = 0
+        # self.angular_failed_wheel = np.zeros(self.number) if self.failure == "Catastrophic_RW" else self.angular_failed_wheel
+        # angular_wheels[self.number_of_failed_wheels] = self.angular_failed_wheel
         return angular_wheels
 
 class Sun_sensor(Fault_parameters):
@@ -813,9 +816,9 @@ class Magnetometers(Fault_parameters):
     def Magnetometer_sensor_high_noise(self, sensor):
         return sensor*random_size(minimum = Min_high_noise, maximum = Max_high_noise) if self.failure == "Magnetometer_sensor_high_noise" else sensor
 
-    def solarPanelDipole(self, B_sbc_meas, solarPanelsMagneticField):
+    def solarPanelDipole(self, B_sbc_meas, Beta, solarPanelsMagneticField, A_EIC_to_ORC, A_ORC_to_SBC):
         if self.failure == "solarPanelDipole":
-            return B_sbc_meas + solarPanelsMagneticField
+            return NormalizeVector(A_ORC_to_SBC @ A_EIC_to_ORC @ Beta + solarPanelsMagneticField)
         else:
             return B_sbc_meas
 
@@ -847,130 +850,130 @@ class Earth_Sensor(Fault_parameters):
 
         #! Do not slice the earth in half with the place. Select an arbitrary point for the plane and then project both the earth and the moon unto the point
         #! Since the point where the plane is, is know, the distance to the place is also known, and thus all the calculations will be viable
-        if self.failure == "MoonOnHorizon":
-            moonOnHorizon = False
+        # if self.failure == "MoonOnHorizon":
+        moonOnHorizon = False
 
-            nadirSensorToPlane = 1                              # Parameter in m
-            numPixels = 1024                                    # Number of pixels (1024x1024)
-            lenghtOfPixelAtPlane = nadirSensorToPlane/numPixels # Length of pixel at distance of plane
+        nadirSensorToPlane = 1                              # Parameter in m
+        numPixels = 1024                                    # Number of pixels (1024x1024)
+        lenghtOfPixelAtPlane = nadirSensorToPlane/numPixels # Length of pixel at distance of plane
 
-            # The assumption is that the camera FOV centre is at the [0, 0, 0]
-            moonVectorFromSatORC = (SET_PARAMS.Moon_REM + 2*SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)*moonVectorEIC - (SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)*satVectorORC
+        # The assumption is that the camera FOV centre is at the [0, 0, 0]
+        moonVectorFromSatORC = (SET_PARAMS.Moon_REM + 2*SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)*moonVectorEIC - (SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)*satVectorORC
 
-            #* Calculate the vector from the earth sensor
+        #* Calculate the vector from the earth sensor
 
-            nadirVectorORC = np.linalg.inv(A_ORC_to_SBC) @ SET_PARAMS.Earth_sensor_position
-            earthSlicePlane = [nadirVectorORC[0], nadirVectorORC[1], nadirVectorORC[2],  0] # x, y, z, d
+        nadirVectorORC = np.linalg.inv(A_ORC_to_SBC) @ SET_PARAMS.Earth_sensor_position
+        earthSlicePlane = [nadirVectorORC[0], nadirVectorORC[1], nadirVectorORC[2],  0] # x, y, z, d
 
-            #* Radius of moon projected unto the 3D plane from angle of moon on plane
-            distanceFromSatToMoon = np.linalg.norm(moonVectorFromSatORC)
-            angleRM =  np.arctan(SET_PARAMS.Moon_RM/(distanceFromSatToMoon))
-            RM = nadirSensorToPlane * np.tan(angleRM)
+        #* Radius of moon projected unto the 3D plane from angle of moon on plane
+        distanceFromSatToMoon = np.linalg.norm(moonVectorFromSatORC)
+        angleRM =  np.arctan(SET_PARAMS.Moon_RM/(distanceFromSatToMoon))
+        RM = nadirSensorToPlane * np.tan(angleRM)
 
-            #* Radius of earth projected unto the 3D plane
-            distanceFromSatToEarth = (SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)
-            angleRE =  np.arctan(SET_PARAMS.Radius_earth/1e3 / (distanceFromSatToEarth))
-            RE = nadirSensorToPlane * np.tan(angleRE)
+        #* Radius of earth projected unto the 3D plane
+        distanceFromSatToEarth = (SET_PARAMS.Radius_earth/1e3 + SET_PARAMS.Height_above_earth_surface/1e3)
+        angleRE =  np.arctan(SET_PARAMS.Radius_earth/1e3 / (distanceFromSatToEarth))
+        RE = nadirSensorToPlane * np.tan(angleRE)
 
-            #* Radius of Field of view on plane
-            RFOV = nadirSensorToPlane * np.tan(SET_PARAMS.Earth_sensor_angle * math.pi/180)
+        #* Radius of Field of view on plane
+        RFOV = nadirSensorToPlane * np.tan(SET_PARAMS.Earth_sensor_angle * math.pi/180)
 
-            #* Calculate 3D centre points
-            moonCentre = Intersection(earthSlicePlane, moonVectorFromSatORC/distanceFromSatToMoon, np.array([0, 0, 0]) - nadirVectorORC)
-            nadirSensorCentre = np.array([0, 0, 0]) #Intersection(earthSlicePlane, earthPositionORC, satPositionEIC)
-            earthCentre = Intersection(earthSlicePlane, satVectorORC, np.array([0, 0, 0]) - nadirVectorORC)
+        #* Calculate 3D centre points
+        moonCentre = Intersection(earthSlicePlane, moonVectorFromSatORC/distanceFromSatToMoon, np.array([0, 0, 0]) - nadirVectorORC)
+        nadirSensorCentre = np.array([0, 0, 0]) #Intersection(earthSlicePlane, earthPositionORC, satPositionEIC)
+        earthCentre = Intersection(earthSlicePlane, satVectorORC, np.array([0, 0, 0]) - nadirVectorORC)
 
-            #* Calculate the discrete angle for both moon and earth points
-            thetaDiscreteMoon = np.tan(lenghtOfPixelAtPlane/RM)
-            thetaDiscreteEarth = np.tan(lenghtOfPixelAtPlane/RE)
-            thetaDiscreteFOV = np.tan(lenghtOfPixelAtPlane/RFOV)
+        #* Calculate the discrete angle for both moon and earth points
+        thetaDiscreteMoon = np.tan(lenghtOfPixelAtPlane/RM)
+        thetaDiscreteEarth = np.tan(lenghtOfPixelAtPlane/RE)
+        thetaDiscreteFOV = np.tan(lenghtOfPixelAtPlane/RFOV)
 
-            #* Ignore the 3D dimension and recalculate it afterwards with the equation for the earthSlicePlane
-            moonCentreXY = moonCentre[:2]
-            nadirSensorCentreXY = nadirSensorCentre[:2]
-            earthCentreXY = earthCentre[:2]
+        #* Ignore the 3D dimension and recalculate it afterwards with the equation for the earthSlicePlane
+        moonCentreXY = moonCentre[:2]
+        nadirSensorCentreXY = nadirSensorCentre[:2]
+        earthCentreXY = earthCentre[:2]
 
-            #* Calculate Moon points
-            numDiscrete = int(2*math.pi/thetaDiscreteMoon)
-            moonAngles = np.linspace(0, 2*math.pi, numDiscrete)
-            x = np.cos(moonAngles).reshape((numDiscrete, 1))
-            y = np.sin(moonAngles).reshape((numDiscrete, 1))
-            angleArray = np.concatenate((x, y), axis = 1)
-            moonPoints = np.ones((numDiscrete, 2)) * moonCentreXY + RM * angleArray
-            
-            #* Calculate Earth points
-            numDiscrete = int(2*math.pi/thetaDiscreteEarth)
-            earthAngles = np.linspace(0, 2*math.pi, numDiscrete)
-            x = np.cos(earthAngles).reshape((numDiscrete, 1))
-            y = np.sin(earthAngles).reshape((numDiscrete, 1))
-            angleArray = np.concatenate((x, y), axis = 1)
-            earthPoints = np.ones((numDiscrete, 2)) * earthCentreXY + RE * angleArray
+        #* Calculate Moon points
+        numDiscrete = int(2*math.pi/thetaDiscreteMoon)
+        moonAngles = np.linspace(0, 2*math.pi, numDiscrete)
+        x = np.cos(moonAngles).reshape((numDiscrete, 1))
+        y = np.sin(moonAngles).reshape((numDiscrete, 1))
+        angleArray = np.concatenate((x, y), axis = 1)
+        moonPoints = np.ones((numDiscrete, 2)) * moonCentreXY + RM * angleArray
+        
+        #* Calculate Earth points
+        numDiscrete = int(2*math.pi/thetaDiscreteEarth)
+        earthAngles = np.linspace(0, 2*math.pi, numDiscrete)
+        x = np.cos(earthAngles).reshape((numDiscrete, 1))
+        y = np.sin(earthAngles).reshape((numDiscrete, 1))
+        angleArray = np.concatenate((x, y), axis = 1)
+        earthPoints = np.ones((numDiscrete, 2)) * earthCentreXY + RE * angleArray
 
-            #* Calculate earth points that is not within moon radius
-            earthPointsToAccount = earthPoints[np.sqrt((earthPoints[:,0] - moonCentreXY[0])**2 + (earthPoints[:,1] - moonCentreXY[1])**2) > RM + lenghtOfPixelAtPlane]
+        #* Calculate earth points that is not within moon radius
+        earthPointsToAccount = earthPoints[np.sqrt((earthPoints[:,0] - moonCentreXY[0])**2 + (earthPoints[:,1] - moonCentreXY[1])**2) > RM + lenghtOfPixelAtPlane]
 
-            #* Calculate moon points that is not behind earth (WITHIN EARTH RADIUS)
-            if (np.sqrt((moonPoints[:,0] - earthCentreXY[0])**2 + (moonPoints[:,1] - earthCentreXY[1])**2) < RE + lenghtOfPixelAtPlane).any() and angleToMoon < 90:
-                moonPointsToAccount = moonPoints[np.sqrt((moonPoints[:,0] - earthCentreXY[0])**2 + (moonPoints[:,1] - earthCentreXY[1])**2) > RE - lenghtOfPixelAtPlane]
-                moonPointsToAccount = moonPointsToAccount[np.sqrt((moonPointsToAccount[:,0] - earthCentreXY[0])**2 + (moonPointsToAccount[:,1] - earthCentreXY[1])**2) > RE]
-                pointsToAccount = np.vstack((moonPointsToAccount, earthPointsToAccount))
-            else:
-                pointsToAccount = earthPointsToAccount
-
-            # Calculate the difference between the discrete points and the centre of the FOV
-            # If the distance is smaller than the RFOV then the points must be accounted for
-            # Because the FOV is at 0, only the points X and Y values can be used
-            pointsToAccount = pointsToAccount[np.sqrt(pointsToAccount[:,0]**2 + pointsToAccount[:,1]**2) < RFOV]
-
-            #* Calculate the squared of x and y
-            if pointsToAccount.size == 0:
-                earthVector = np.array([0, 0, 0])
-            else:
-                Squared = pointsToAccount[:,0]**2 + pointsToAccount[:,1]**2
-
-                #* x, y, r 
-                circleArray = np.concatenate((pointsToAccount, np.ones((pointsToAccount.shape[0], 1))), axis = 1)
-                abc = np.linalg.pinv(circleArray) @ Squared
-                xc = abc[0]/2
-                yc = abc[1]/2
-                zc = (-earthSlicePlane[0]*xc - earthSlicePlane[1]*yc)/earthSlicePlane[2]
-
-                #! Still need to get the vector from a position
-                earthPosition = np.array([xc, yc, zc])
-                earthVector = earthPosition - (-1 *nadirVectorORC * nadirSensorToPlane)
-                earthVector = NormalizeVector(earthVector)
-
-                if np.isin(pointsToAccount, moonPoints).any():
-                    moonOnHorizon = True
-                    # print("Moon cause error")
-                    # print(earthVector, satVectorORC)
-                    # print(pointsToAccount.shape)
-                    # circle1 = plt.Circle((moonCentre[0], moonCentre[1]), RM, color='k', alpha = 0.4, fill = True)
-                    # circle2 = plt.Circle((earthCentre[0], earthCentre[1]), RE, color='blue', alpha = 0.4, fill = True)
-                    # circle3 = plt.Circle((nadirSensorCentreXY[0], nadirSensorCentreXY[1]), RFOV, color='g', fill = False, clip_on=False)
-
-                    # # circle1 = plt.Circle((earthCentre[0], earthCentre[1]), RE, color='blue', alpha = 0.4, fill = True)
-                    # # circle2 = plt.Circle((earthPosition[0], earthPosition[1]), RE, color='k', alpha = 0.4, fill = True)
-                    # fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
-                    # # (or if you have an existing figure)
-
-                    # plt.xlim([-2, 2])
-                    # plt.ylim([-2, 2])
-                    # ax.add_patch(circle1)
-                    # ax.add_patch(circle2)
-                    # ax.add_patch(circle3)
-
-                    # ax.scatter(moonPoints[:,0], moonPoints[:, 1], color="r")
-                    # ax.scatter(earthPoints[:,0], earthPoints[:, 1], color="y")
-                    # ax.scatter(pointsToAccount[:,0], pointsToAccount[:, 1], color="c")
-                    # ax.scatter(earthPosition[0], earthPosition[1], color = 'blue')
-                    # ax.scatter(earthCentre[0], earthCentre[1], color = 'k')
-                    # plt.show()
-
-            return A_ORC_to_SBC @ earthVector, moonOnHorizon
-
+        #* Calculate moon points that is not behind earth (WITHIN EARTH RADIUS)
+        if (np.sqrt((moonPoints[:,0] - earthCentreXY[0])**2 + (moonPoints[:,1] - earthCentreXY[1])**2) < RE + lenghtOfPixelAtPlane).any() and angleToMoon < 90 and self.failure == "MoonOnHorizon":
+            moonPointsToAccount = moonPoints[np.sqrt((moonPoints[:,0] - earthCentreXY[0])**2 + (moonPoints[:,1] - earthCentreXY[1])**2) > RE - lenghtOfPixelAtPlane]
+            moonPointsToAccount = moonPointsToAccount[np.sqrt((moonPointsToAccount[:,0] - earthCentreXY[0])**2 + (moonPointsToAccount[:,1] - earthCentreXY[1])**2) > RE]
+            pointsToAccount = np.vstack((moonPointsToAccount, earthPointsToAccount))
         else:
-            return A_ORC_to_SBC @ satVectorORC, False
+            pointsToAccount = earthPointsToAccount
+
+        # Calculate the difference between the discrete points and the centre of the FOV
+        # If the distance is smaller than the RFOV then the points must be accounted for
+        # Because the FOV is at 0, only the points X and Y values can be used
+        pointsToAccount = pointsToAccount[np.sqrt(pointsToAccount[:,0]**2 + pointsToAccount[:,1]**2) < RFOV]
+
+        #* Calculate the squared of x and y
+        if pointsToAccount.size == 0:
+            earthVector = np.array([0, 0, 0])
+        else:
+            Squared = pointsToAccount[:,0]**2 + pointsToAccount[:,1]**2
+
+            #* x, y, r 
+            circleArray = np.concatenate((pointsToAccount, np.ones((pointsToAccount.shape[0], 1))), axis = 1)
+            abc = np.linalg.pinv(circleArray) @ Squared
+            xc = abc[0]/2
+            yc = abc[1]/2
+            zc = (-earthSlicePlane[0]*xc - earthSlicePlane[1]*yc)/earthSlicePlane[2]
+
+            #! Still need to get the vector from a position
+            earthPosition = np.array([xc, yc, zc])
+            earthVector = earthPosition - (-1 *nadirVectorORC * nadirSensorToPlane)
+            earthVector = NormalizeVector(earthVector)
+
+            if np.isin(pointsToAccount, moonPoints).any():
+                moonOnHorizon = True
+                # print("Moon cause error")
+                # print(earthVector, satVectorORC)
+                # print(pointsToAccount.shape)
+                # circle1 = plt.Circle((moonCentre[0], moonCentre[1]), RM, color='k', alpha = 0.4, fill = True)
+                # circle2 = plt.Circle((earthCentre[0], earthCentre[1]), RE, color='blue', alpha = 0.4, fill = True)
+                # circle3 = plt.Circle((nadirSensorCentreXY[0], nadirSensorCentreXY[1]), RFOV, color='g', fill = False, clip_on=False)
+
+                # # circle1 = plt.Circle((earthCentre[0], earthCentre[1]), RE, color='blue', alpha = 0.4, fill = True)
+                # # circle2 = plt.Circle((earthPosition[0], earthPosition[1]), RE, color='k', alpha = 0.4, fill = True)
+                # fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
+                # # (or if you have an existing figure)
+
+                # plt.xlim([-2, 2])
+                # plt.ylim([-2, 2])
+                # ax.add_patch(circle1)
+                # ax.add_patch(circle2)
+                # ax.add_patch(circle3)
+
+                # ax.scatter(moonPoints[:,0], moonPoints[:, 1], color="r")
+                # ax.scatter(earthPoints[:,0], earthPoints[:, 1], color="y")
+                # ax.scatter(pointsToAccount[:,0], pointsToAccount[:, 1], color="c")
+                # ax.scatter(earthPosition[0], earthPosition[1], color = 'blue')
+                # ax.scatter(earthCentre[0], earthCentre[1], color = 'k')
+                # plt.show()
+
+        return NormalizeVector(A_ORC_to_SBC @ earthVector), moonOnHorizon
+
+        # else:
+        #     return NormalizeVector(A_ORC_to_SBC @ satVectorORC), False
 
 class Angular_Sensor(Fault_parameters):
     def __init__(self, seed):

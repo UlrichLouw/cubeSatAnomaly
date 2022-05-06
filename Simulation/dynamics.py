@@ -69,12 +69,14 @@ class Dynamics:
         else:
             self.NsolarMag, self.solarPanelsMagneticField = np.zeros(3), np.zeros(3)
 
+        self.solarPanelsMagneticField = np.zeros(3)
+
         self.B_sbc = self.A_ORC_to_SBC @ self.B_ORC
         ######################################################
         # IMPLEMENT ERROR OR FAILURE OF SENSOR IF APPLICABLE #
         ######################################################
         self.B_sbc_meas = self.B_sbc.copy()
-        self.B_sbc_meas = self.Magnetometer_fault.solarPanelDipole(self.B_sbc_meas, self.solarPanelsMagneticField)
+        self.B_sbc_meas = self.Magnetometer_fault.solarPanelDipole(self.B_sbc_meas, self.Beta, self.solarPanelsMagneticField, self.A_EIC_to_ORC, self.A_ORC_to_SBC)
         self.B_sbc_meas = self.Magnetometer_fault.normal_noise(self.B_sbc_meas, SET_PARAMS.Magnetometer_noise)
         self.B_sbc_meas = self.Magnetometer_fault.Stop_magnetometers (self.B_sbc_meas)
         self.B_sbc_meas = self.Magnetometer_fault.Interference_magnetic(self.B_sbc_meas)
@@ -124,13 +126,20 @@ class Dynamics:
         if angle_difference < 180/2:
             self.earthSeenBySensor = True
             angleDifferenceMoon = Quaternion_functions.rad2deg(np.arccos(np.clip(np.dot(self.A_ORC_to_SBC @ self.moonVectorORC, SET_PARAMS.Earth_sensor_position),-1,1)))
-            
-            self.r_sat_sbc_meas, self.moonOnHorizon = self.Earth_sensor_fault.moonOnHorizon(self.r_sat_ORC, self.moonVectorEIC, self.A_ORC_to_SBC, angleDifferenceMoon)
-            self.r_sat_sbc_meas = self.Earth_sensor_fault.normal_noise(self.r_sat_sbc_meas, SET_PARAMS.Earth_noise)
-            self.r_sat_sbc_meas = self.Earth_sensor_fault.Earth_sensor_high_noise(self.r_sat_sbc)
-            self.r_sat_sbc_meas = self.Common_data_transmission_fault.Bit_flip(self.r_sat_sbc)
-            self.r_sat_sbc_meas = self.Common_data_transmission_fault.Sign_flip(self.r_sat_sbc)
-            self.r_sat_sbc_meas = self.Common_data_transmission_fault.Insertion_of_zero_bit(self.r_sat_sbc) 
+            self.r_sat_sbc_meas, self.moonOnHorizon = self.Earth_sensor_fault.moonOnHorizon(self.r_sat_ORC.copy(), self.moonVectorEIC.copy(), self.A_ORC_to_SBC.copy(), angleDifferenceMoon)
+
+            if (self.r_sat_sbc_meas == 0).all():
+                self.r_sat_sbc = np.zeros(self.r_sat_sbc_meas.shape)
+                self.sensor_vectors["Earth_Sensor"]["True ORC"] = np.zeros(self.r_sat_sbc_meas.shape)
+                self.sensor_vectors["Earth_Sensor"]["Noise ORC"] = np.zeros(self.r_sat_sbc_meas.shape)
+                #* self.r_sat_ORC is already normalized
+                self.earthSeenBySensor = False
+            else:
+                self.r_sat_sbc_meas = self.Earth_sensor_fault.normal_noise(self.r_sat_sbc_meas, SET_PARAMS.Earth_noise)
+            # self.r_sat_sbc_meas = self.Earth_sensor_fault.Earth_sensor_high_noise(self.r_sat_sbc)
+            # self.r_sat_sbc_meas = self.Common_data_transmission_fault.Bit_flip(self.r_sat_sbc)
+            # self.r_sat_sbc_meas = self.Common_data_transmission_fault.Sign_flip(self.r_sat_sbc)
+            # self.r_sat_sbc_meas = self.Common_data_transmission_fault.Insertion_of_zero_bit(self.r_sat_sbc) 
 
         else:
             self.r_sat_sbc_meas = np.zeros(self.r_sat_sbc_meas.shape)
@@ -199,11 +208,11 @@ class Dynamics:
                 # IMPLEMENT ERROR OR FAILURE OF SENSOR IF APPLICABLE #
                 ######################################################
 
-                self.S_sbc_meas = self.Sun_sensor_fault.Catastrophic_sun(self.S_sbc, "Coarse")
-                self.S_sbc_meas = self.Sun_sensor_fault.Erroneous_sun(self.S_sbc, "Coarse")
-                self.S_sbc_meas = self.Common_data_transmission_fault.Bit_flip(self.S_sbc)
-                self.S_sbc_meas = self.Common_data_transmission_fault.Sign_flip(self.S_sbc)
-                self.S_sbc_meas = self.Common_data_transmission_fault.Insertion_of_zero_bit(self.S_sbc)  
+                # self.S_sbc_meas = self.Sun_sensor_fault.Catastrophic_sun(self.S_sbc, "Coarse")
+                # self.S_sbc_meas = self.Sun_sensor_fault.Erroneous_sun(self.S_sbc, "Coarse")
+                # self.S_sbc_meas = self.Common_data_transmission_fault.Bit_flip(self.S_sbc)
+                # self.S_sbc_meas = self.Common_data_transmission_fault.Sign_flip(self.S_sbc)
+                # self.S_sbc_meas = self.Common_data_transmission_fault.Insertion_of_zero_bit(self.S_sbc)  
 
                 self.sun_noise = SET_PARAMS.Coarse_sun_noise
             else:
@@ -280,13 +289,18 @@ class Dynamics:
         
         N_control_magnetic, N_control_wheel = self.control.control(self.w_bi_est, self.w_bo_est, self.q_est, self.Inertia, Magnetometer_vector, self.angular_momentum_wheels_with_noise, Earth_vector, Sun_vector, self.sun_in_view)
 
-        if "RW" in self.fault:
-            N_control_wheel = self.Reaction_wheel_fault.Electronics_of_RW_failure(N_control_wheel)
-            N_control_wheel = self.Reaction_wheel_fault.Overheated_RW(N_control_wheel)
+        # Sewt Torque of wheel for kalman filter before the fault is added to the system
+        self.Nw = N_control_wheel.copy()
+
+        if "catastrophicReactionWheel" in self.fault:
+            # N_control_wheel = self.Reaction_wheel_fault.Electronics_of_RW_failure(N_control_wheel)
+            # N_control_wheel = self.Reaction_wheel_fault.Overheated_RW(N_control_wheel)
             N_control_wheel = self.Reaction_wheel_fault.Catastrophic_RW(N_control_wheel)
-            N_control_wheel = self.Control_fault.Increasing_angular_RW_momentum(N_control_wheel)
-            N_control_wheel = self.Control_fault.Decreasing_angular_RW_momentum(N_control_wheel)
-            N_control_wheel = self.Control_fault.Oscillating_angular_RW_momentum(N_control_wheel)
+            # N_control_wheel = self.Control_fault.Increasing_angular_RW_momentum(N_control_wheel)
+            # N_control_wheel = self.Control_fault.Decreasing_angular_RW_momentum(N_control_wheel)
+            # N_control_wheel = self.Control_fault.Oscillating_angular_RW_momentum(N_control_wheel)
+
+        self.NwActual = N_control_wheel
 
         if SET_PARAMS.no_aero_disturbance:
             N_aero = np.zeros(3)
@@ -335,7 +349,6 @@ class Dynamics:
         
         self.Ngyro = N_gyro
         self.Nm = N_control_magnetic
-        self.Nw = N_control_wheel
         self.Ngg = Ngg
         self.Nrw = N_rw
         self.Naero = N_aero
@@ -409,9 +422,11 @@ class Dynamics:
 
         modelledEarth = self.A_ORC_to_SBC @ self.sensor_vectors["Earth_Sensor"]["True ORC"]
 
-        Sensors_X = np.concatenate([self.Orbit_Data["Sun"], modelledSun,
-                                        self.Orbit_Data["Magnetometer"], modelledMagnetometer, 
-                                        self.Orbit_Data["Earth"], modelledEarth])
+        #! This needs to change depending on whether include modelled vectors are active or not
+
+        Sensors_X = np.concatenate([self.Orbit_Data["Sun"],
+                                        self.Orbit_Data["Magnetometer"],
+                                        self.Orbit_Data["Earth"]])
 
         if SET_PARAMS.SensorFDIR:
             self.DefineIfFault()
@@ -571,6 +586,9 @@ class Dynamics:
         elif fault in SET_PARAMS.magnetometerFailures:
             FailedSensor = "Magnetometer"
 
+        elif fault in SET_PARAMS.reactionWheelFailures:
+            FailedSensor = "reactionWheel"
+
         self.implementedFault = fault
         self.implementedFailedSensor = FailedSensor
 
@@ -581,13 +599,19 @@ class Dynamics:
     def SensorIsolation(self, MovingAverageDict, Sensors_X, predictedFailure):
         FailedSensor = "None"
 
+        if SET_PARAMS.FeatureExtraction == "DMD":
+            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
+        
+        elif SET_PARAMS.FeatureExtraction == "None":
+            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
+
         if predictedFailure:
             #! This should account for multiple predictions of failures
             if SET_PARAMS.SensorIsolator == "DMD":
                 FailedSensor = max(zip(MovingAverageDict.values(), MovingAverageDict.keys()))[1]
             
             elif SET_PARAMS.SensorIsolator == "DecisionTrees":
-                arrayFault = self.DecisionTreeMulti.Predict(np.array([np.concatenate([Sensors_X, self.MovingAverage.flatten()])]))
+                arrayFault = self.DecisionTreeMulti.Predict(Sensors_X)
                 arrayFault = arrayFault.replace("]", "").replace("[", "").replace(" ", "")
                 arrayFault = arrayFault.split(",")
                 indexFault = arrayFault.index("1")
@@ -603,13 +627,18 @@ class Dynamics:
 
                 elif fault in SET_PARAMS.magnetometerFailures:
                     FailedSensor = "Magnetometer"
+
+                elif fault in SET_PARAMS.reactionWheelFailures:
+                    FailedSensor = "reactionWheel"
+
+                print(FailedSensor, self.implementedFailedSensor)
 
             elif SET_PARAMS.SensorIsolator == "RandomForest":
                 arrayFault = self.RandomForestMulti.Predict(np.array([np.concatenate([Sensors_X, self.MovingAverage.flatten()])]))
                 arrayFault = arrayFault.replace("]", "").replace("[", "").replace(" ", "")
                 arrayFault = arrayFault.split(",")
                 indexFault = arrayFault.index("1")
-                fault = SET_PARAMS.faultnames[indexFault]
+                fault = SET_PARAMS.faultnames[indexFault + 1]
                 if fault in SET_PARAMS.SunFailures:
                     FailedSensor = "Sun"
                 
@@ -621,6 +650,9 @@ class Dynamics:
 
                 elif fault in SET_PARAMS.magnetometerFailures:
                     FailedSensor = "Magnetometer"
+
+                elif fault in SET_PARAMS.reactionWheelFailures:
+                    FailedSensor = "reactionWheel"
 
             elif SET_PARAMS.SensorIsolator == "PERFECT":
                 FailedSensor = self.implementedFailedSensor
@@ -640,9 +672,13 @@ class Dynamics:
     def SensorRecovery(self, failedSensor):
         reset = False
         sensors_kalman = SET_PARAMS.kalmanSensors.copy()
+
+        if failedSensor == "reactionWheel":
+            self.Nw[1] = 0
+
         # The EKF method of recovery resets the kalman filter 
         # if the predictedFailed sensor changes
-        if self.bufferRecoveryMethod:
+        elif self.bufferRecoveryMethod:
             if SET_PARAMS.RecoveryBuffer == "EKF-top2":  
                 for _ in range(len(sensors_kalman)-2):
                     Error = 0
@@ -1001,7 +1037,7 @@ class Single_Satellite(Dynamics):
 
         if SET_PARAMS.FeatureExtraction == "DMD":
             self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.DecisionTreeMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.RandomForestMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineBinaryClass.sav')
@@ -1011,9 +1047,9 @@ class Single_Satellite(Dynamics):
 
         elif SET_PARAMS.FeatureExtraction == "None":
             self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.DecisionTreeMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.RandomForestMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.RandomForestMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineBinaryClass.sav')
             self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesBernoulliBinaryClass.sav')
             self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesGaussianBinaryClass.sav')
@@ -1074,6 +1110,9 @@ class Single_Satellite(Dynamics):
             "Wheel Control Torques_x",
             "Wheel Control Torques_y",
             "Wheel Control Torques_z",
+            "Actual Wheel Control Torques_x",
+            "Actual Wheel Control Torques_y",
+            "Actual Wheel Control Torques_z",
             "Magnetic Control Torques_x",
             "Magnetic Control Torques_y",
             "Magnetic Control Torques_z",
@@ -1269,6 +1308,8 @@ class Single_Satellite(Dynamics):
             fault = "None"
         elif not self.moonOnHorizon and self.fault == "MoonOnHorizon":
             fault = "None"
+        elif not self.SunSeenBySensor and self.fault == "solarPanelDipole":
+            fault = "None"
         elif not self.SunSeenBySensor and self.fault in SET_PARAMS.SunFailures:
             fault = "None"
         elif not self.earthSeenBySensor and self.fault in SET_PARAMS.EarthFailures:
@@ -1306,6 +1347,9 @@ class Single_Satellite(Dynamics):
 
         elif fault in SET_PARAMS.magnetometerFailures:
             FailedSensor = "Magnetometer"
+        
+        elif fault in SET_PARAMS.reactionWheelFailures:
+            FailedSensor = "reactionWheel"
 
         self.Orbit_Data["Isolation Accuracy"] = 1 if FailedSensor == self.predictedFailedSensor else 0
 
@@ -1363,6 +1407,9 @@ class Single_Satellite(Dynamics):
             self.Nw[0],
             self.Nw[1],
             self.Nw[2],
+            self.NwActual[0],
+            self.NwActual[1],
+            self.NwActual[2],
             self.Nm[0],
             self.Nm[1],
             self.Nm[2],

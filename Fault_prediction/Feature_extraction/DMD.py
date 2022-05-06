@@ -33,7 +33,7 @@ def MatrixAB(path, fromTimeStep = 0, ToTimeStep = -1, includeModelled = False):
         #! Without control matrix B
         #! A = x2 @ np.linalg.pinv(x1)
         #! x2_approximate = A @ x1
-
+        
     G = x2 @ np.linalg.pinv(np.concatenate((x1, y1)))
 
     

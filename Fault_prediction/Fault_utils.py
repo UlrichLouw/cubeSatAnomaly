@@ -16,7 +16,7 @@ def Binary_split(classified_data):
 
     return classified_data
 
-def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = True, ControlInput = False, onlySensors = False, use_previously_saved_models = False, columns_compare = None, columns_compare_to = None, constellation = False, onlyCurrentSatellite = True, multi_class = False, MovingAverage = True, includeAngularMomemntumSensors = False, includeModelled = False):
+def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = True, ControlInput = False, onlySensors = False, use_previously_saved_models = False, columns_compare = None, columns_compare_to = None, constellation = False, onlyCurrentSatellite = True, multi_class = False, MovingAverage = True, includeAngularMomemntumSensors = False, includeModelled = False, ignoreNormal = False):
     # If multi-class and constellation, then the output should be a list of which satellite has failed
     X_buffer = []
     Y_buffer = []  
@@ -32,19 +32,24 @@ def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = Tr
             xls = pd.ExcelFile(excel_file)
             Data = pd.read_excel(xls, str(index))
         elif SET_PARAMS.load_as == ".csv":
-            csv_file = SET_PARAMS.filename + str(index) + ".csv"
+            csv_file = SET_PARAMS.filename + str(index) + ".csv.gz"
             Data = pd.read_csv(csv_file)
         else:
             pickle_file = SET_PARAMS.filename + str(index) + ".pkl"
             Data = pd.read_pickle(pickle_file)
     else:
         if SET_PARAMS.load_as == ".csv":
-            csv_file = SET_PARAMS.path + index + ".csv"
+            csv_file = SET_PARAMS.path + index + ".csv.gz"
             Data = pd.read_csv(csv_file)
         else:
             pickle_file = SET_PARAMS.path + index+ ".pkl"
             Data = pd.read_pickle(pickle_file)
+
     Data = Data.loc[:, ~Data.columns.str.contains("^Unnamed")]
+
+    if ignoreNormal:
+         Data = Data.loc[Data["Current fault binary"] != 0]
+
     Data = Data.loc[:, ~Data.columns.str.contains("^TimeStep")]
     Data = Data.loc[:, ~Data.columns.str.contains("Euler Angles")]
     Data = Data.loc[:, ~Data.columns.str.contains("Angular velocity of satellite")]
@@ -52,6 +57,7 @@ def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = Tr
     Data = Data.loc[:, ~Data.columns.str.contains("P_k")]
     Data = Data.loc[:, ~Data.columns.str.contains("_Error_")]
     Data = Data.loc[:, ~Data.columns.str.contains("K_k")]
+    Data = Data.loc[:, ~Data.columns.str.contains("Actual Wheel Control Torques")]
 
     ReplaceDict = {'\n': '',
                     '[': '',
@@ -187,8 +193,6 @@ def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = Tr
             Ydf = Orbit.loc[:,Orbit.columns.str.contains('fault')]
             ClassNames = Ydf.columns
         Y = Ydf.to_numpy()
-        
-    print(ColumnNames)
 
     if ControlInput:
         Y = Data.loc[:,Data.columns.str.contains('Control Torques')].to_numpy()

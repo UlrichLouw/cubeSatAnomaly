@@ -17,27 +17,36 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, treeDepth, multi_cla
 
     SET_PARAMS.buffer_size = 100
 
+    if multi_class:
+        ignoreNormal = True
+        startNum = 1
+    else:
+        ignoreNormal = False
+        startNum = 0
+
+    anomalyNames = []
+
     if constellation:
-        for satNum in range(SET_PARAMS.Number_of_satellites):
+        for satNum in range(startNum, SET_PARAMS.Number_of_satellites):
             print(satNum)
             SET_PARAMS.path = pathFiles + str(satNum) + "/"
             for index in range(SET_PARAMS.number_of_faults):
                 name = SET_PARAMS.Fault_names_values[index+1]
                 if multi_class:
-                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, constellation = constellation, multi_class = True, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled)
+                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, constellation = constellation, multi_class = True, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
                 else:
-                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, constellation = constellation, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled)
+                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, constellation = constellation, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
                 X_list.append(X)    
                 Y_list.append(Y)
 
     else:
-        for index in range(SET_PARAMS.number_of_faults):
+        for index in range(startNum, SET_PARAMS.number_of_faults):
             name = SET_PARAMS.Fault_names_values[index+1]
+            anomalyNames.append(name)
             if multi_class:
-                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled)
+                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
             else:
-                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled)
-            print(X.shape)
+                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
             X_list.append(X)    
             Y_list.append(Y)
 
@@ -76,7 +85,7 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, treeDepth, multi_cla
         path_to_folder = Path(path)
         path_to_folder.mkdir(exist_ok=True)
 
-        print(path + '/DecisionTreesBinaryClass')
+        print(path)
 
         if lowPredictionAccuracy:
             pickle.dump(clf, open(path + '/DecisionTreesBinaryClassLowAccuracy' + str(depth) + '.sav', 'wb'))
@@ -89,7 +98,7 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, treeDepth, multi_cla
             pickle.dump(clf, open(path + '/ConstellationDecisionTreesMultiClass' + str(depth) + '.sav', 'wb'))
             if SET_PARAMS.Visualize:
                 fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
+                tree.plot_tree(clf, feature_names = anomalyNames, filled=True, max_depth = 2, fontsize = fontsize)
                 fig.savefig(path + '/ConstellationDecisionTreeMultiClass' + str(depth) + '.png')
         elif constellation:
             pickle.dump(clf, open(path + '/ConstellationDecisionTreesBinaryClass' + str(depth) + '.sav', 'wb'))
@@ -103,7 +112,7 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, treeDepth, multi_cla
             pickle.dump(clf, open(path + '/DecisionTreesMultiClass' + str(depth) + '.sav', 'wb'))
             if SET_PARAMS.Visualize:
                 fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
+                tree.plot_tree(clf, class_names = anomalyNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
                 fig.savefig(path + '/DecisionTreeMultiClass' + str(depth) + '.png')
         else:
             pickle.dump(clf, open(path + '/DecisionTreesBinaryClass' + str(depth) + '.sav', 'wb'))

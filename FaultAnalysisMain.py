@@ -27,15 +27,15 @@ if __name__ == '__main__':
     SET_PARAMS.SensorPredictor = "None"
     SET_PARAMS.SensorRecoveror = "None" 
     SET_PARAMS.SensorIsolator = "None"
-    SET_PARAMS.number_of_faults = 2
+    SET_PARAMS.number_of_faults = 5
     SET_PARAMS.Number_of_satellites = 100
     SET_PARAMS.Model_or_Measured = "ORC"
     constellation = False
-    multi_class = False
+    multi_class = True
     lowPredictionAccuracy = False
     MovingAverage = False
     includeAngularMomentumSensors = True
-    includeModelled = True
+    includeModelled = False
     featureExtractionMethod = "None"
 
     treeDepth = [5, 10, 20, 100]
@@ -46,21 +46,27 @@ if __name__ == '__main__':
         GenericPath = "Constellation/" + "FeatureExtraction-" + SET_PARAMS.FeatureExtraction + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+ SET_PARAMS.Model_or_Measured +"/" +"General CubeSat Model/"
     
     SET_PARAMS.path = SET_PARAMS.path + GenericPath
-    # SET_PARAMS.numberOfSensors = 3
-    # # Compute the A and B matrix to estimate X
+    SET_PARAMS.numberOfSensors = 3
+    # Compute the A and B matrix to estimate X
     # for i in range(SET_PARAMS.numberOfSensors):
+    #     print(i)
     #     DMD.MatrixAB(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', includeModelled = includeModelled)
     #     SET_PARAMS.sensor_number += 1
     # SET_PARAMS.sensor_number = "ALL"
     # DMD.MatrixAB(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', includeModelled = includeModelled)
     # DecisionTree training
-    nbtype = ["Bernoulli", "Gaussian"] #"Gaussian", 
+    # nbtype = ["Bernoulli", "Gaussian"] #"Gaussian", 
 
-    LOF.LOF(path = SET_PARAMS.pathHyperParameters + 'None', featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # NaiveBayes.NB(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', NBType = nbtype, featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # SupportVectorMachines.SVM(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # Isolation_Forest.IsoForest(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # Extended_Isolation_Forest.IsoForest(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod', featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # KMeansCluster.KMeanBinary(path = SET_PARAMS.pathHyperParameters + 'None', featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # DecisionForests.DecisionTreeAllAnomalies(path = SET_PARAMS.pathHyperParameters + 'Delete', featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
-    # Random_Forest.Random_Forest(path = SET_PARAMS.pathHyperParameters + 'None', featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = False, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    if MovingAverage:
+        tag = "DMD"
+    else:
+        tag = "None"
+
+    # LOF.LOF(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # NaiveBayes.NB(path = SET_PARAMS.pathHyperParameters + tag, NBType = nbtype, featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # SupportVectorMachines.SVM(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # Isolation_Forest.IsoForest(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # Extended_Isolation_Forest.IsoForest(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # KMeansCluster.KMeanBinary(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    DecisionForests.DecisionTreeAllAnomalies(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = multi_class, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
+    # Random_Forest.Random_Forest(path = SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod = featureExtractionMethod, treeDepth = treeDepth, constellation = constellation, multi_class = False, lowPredictionAccuracy = lowPredictionAccuracy, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled)
