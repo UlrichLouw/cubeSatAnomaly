@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     grid = False
     plotStyle = "Line"
-    linewidth = 0.3
+    linewidth = 1
 
     predictionMethods = []
 
@@ -48,6 +48,23 @@ if __name__ == '__main__':
     plotColumns = ["Prediction Accuracy", "Estimation Metric", "Pointing Metric"]
     predictionMethods = ["None"]
 
-    # Metrics.MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = 2, Number = 2, Number_of_orbits = 30, first = True, ALL = False, width = 8.0, height = 6.0, linewidth = linewidth, grid = grid, plotStyle = plotStyle)
-    Vectors.VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = 2, Number = 2, Number_of_orbits = 30, first = True, ALL = False, width = 8.0, height = 6.0)
-    # Summary.SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, includeNone, bbox_to_anchor, loc, plotColumns, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = 2, Number = 30, Number_of_orbits = 30, first = True, ALL = True, width = 8.0, height = 6.0, groupBy = groupBy, uniqueTag = tag)
+    index = 1
+
+    plotColumns = ["SolarPanelDipole Torques", "Magnetometer"]
+
+    # plotColumns = ["Earth"] #, "Magnetometer"]
+
+    # plotColumns = ["Sun", "Magnetometer"]
+
+    plotColumns = ["Earth"]
+
+    # Metrics.MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 30, first = True, ALL = False, width = 8.0, height = 6.0, linewidth = linewidth, grid = grid, plotStyle = plotStyle)
+    Vectors.VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 5, first = True, ALL = False, width = 8.0, height = 6.0, plotColumns = plotColumns)
+    # Summary.SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, includeNone, bbox_to_anchor, loc, plotColumns, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 30, Number_of_orbits = 30, first = True, ALL = True, width = 8.0, height = 6.0, groupBy = groupBy, uniqueTag = tag)
+
+
+
+    # faultNames = ["None",
+    #             "Reflection",
+    #             "solarPanelDipole",
+    #             'catastrophicReactionWheel']

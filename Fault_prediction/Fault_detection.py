@@ -234,7 +234,6 @@ class sklearnBinaryPredictionModels():
         y_predict = self.clf.predict(X)[0]
         return y_predict
 
-
 class DecisionTreePredict():
     def __init__(self, path):
         self.clf = pickle.load(open(path, 'rb'))

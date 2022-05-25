@@ -44,15 +44,20 @@ def loop(index, D, SET_PARAMS):
     else:
         predictor = SET_PARAMS.SensorPredictor 
 
+    if SET_PARAMS.SensorIsolator == "DecisionTrees" or SET_PARAMS.SensorIsolator == "RandomForest":
+        isolator = SET_PARAMS.SensorIsolator + str(SET_PARAMS.treeDepth)
+    else:
+        isolator = SET_PARAMS.SensorIsolator 
+
     if SET_PARAMS.NumberOfRandom > 1:
-        GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + str(predictor)+ "/Isolator-" + str(SET_PARAMS.SensorIsolator) + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + \
+        GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + str(predictor)+ "/Isolator-" + str(isolator) + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + \
                     "SunSensorSize-Length:" + str(SET_PARAMS.Sun_sensor_length) + "-Width:" + str(SET_PARAMS.Sun_sensor_width) + "/" + str(SET_PARAMS.Fault_names_values[index]) 
         path = "Data files/"+ GenericPath
         path = path + "/" + "SolarPanel-Length: " + str(SET_PARAMS.SP_Length) + "SolarPanel-Width: " + str(SET_PARAMS.SP_width) + \
                     "Raan: " + str(SET_PARAMS.RAAN) + " inclinination: " +str(SET_PARAMS.inclination)
         
     else:
-        GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + str(predictor)+ "/Isolator-" + str(SET_PARAMS.SensorIsolator) + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
+        GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + str(predictor)+ "/Isolator-" + str(isolator) + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
         path = "Data files/"+ GenericPath
 
     if SET_PARAMS.Low_Aerodynamic_Disturbance:
@@ -413,7 +418,7 @@ def main(args):
                     SET_PARAMS.SensorIsolator = "None"
                     SET_PARAMS.SensorRecoveror = "None"
 
-                if prediction == "DecisionTrees" or prediction == "RandomForest":
+                if prediction == "DecisionTrees" or prediction == "RandomForest" or isolation == "RandomForest" or isolation == "DecisionTrees":
                     for depth in treeDepth:
                         SET_PARAMS.treeDepth = depth
                         for i in range(numFaultStart, SET_PARAMS.Number_of_multiple_orbits+1):
@@ -608,7 +613,7 @@ def main(args):
                         SET_PARAMS.SensorRecoveror = "None"
 
                     
-                    if prediction == "DecisionTrees" or prediction == "RandomForest":
+                    if prediction == "DecisionTrees" or prediction == "RandomForest" or isolation == "RandomForest" or isolation == "DecisionTrees":
                         for depth in treeDepth:
                             SET_PARAMS.treeDepth = depth
                             for i in range(numFaultStart, SET_PARAMS.Number_of_multiple_orbits+1):
@@ -667,7 +672,7 @@ if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
     main(sys.argv)
-    # main([0, "WithoutFDIR/Reflection2", True])
+    # main([0, "WithFDIR/All30", True])
     # profiler.disable()
     # stats = pstats.Stats(profiler).sort_stats('cumtime')
     # stats.print_stats()

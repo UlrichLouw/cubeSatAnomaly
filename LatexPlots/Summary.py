@@ -71,7 +71,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
 
     cm = 1/2.54
 
-    path_of_execution = str(Path(__file__).parent.resolve()).split("/Satellite")[0] + "/Journal articles/My journal articles/Journal articles/Robust Kalman Filter/Figures/TexFigures"
+    path_of_execution = str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/TexFigures"
 
     Path(path_of_execution).mkdir(parents = True, exist_ok=True)
 

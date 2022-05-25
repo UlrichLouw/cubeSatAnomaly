@@ -318,9 +318,9 @@ class SET_PARAMS:
 
     faultNames = ["None",
                 "Reflection",
-                "MoonOnHorizon",
-                "solarPanelDipole",
-                'catastrophicReactionWheel']
+                #"MoonOnHorizon",
+                "solarPanelDipole"]#,
+                #'catastrophicReactionWheel']
                 # ,
                 # "Earth_sensor_high_noise",
                 # "Magnetometer_sensor_high_noise", 

@@ -69,8 +69,6 @@ class Dynamics:
         else:
             self.NsolarMag, self.solarPanelsMagneticField = np.zeros(3), np.zeros(3)
 
-        self.solarPanelsMagneticField = np.zeros(3)
-
         self.B_sbc = self.A_ORC_to_SBC @ self.B_ORC
         ######################################################
         # IMPLEMENT ERROR OR FAILURE OF SENSOR IF APPLICABLE #
@@ -85,7 +83,6 @@ class Dynamics:
         self.B_sbc_meas = self.Common_data_transmission_fault.Bit_flip(self.B_sbc_meas)
         self.B_sbc_meas = self.Common_data_transmission_fault.Sign_flip(self.B_sbc_meas)
         self.B_sbc_meas = self.Common_data_transmission_fault.Insertion_of_zero_bit(self.B_sbc_meas)
-
 
     def determine_star_tracker(self):
         self.star_tracker_ORC = self.sense.starTracker()
@@ -424,9 +421,13 @@ class Dynamics:
 
         #! This needs to change depending on whether include modelled vectors are active or not
 
-        Sensors_X = np.concatenate([self.Orbit_Data["Sun"],
-                                        self.Orbit_Data["Magnetometer"],
-                                        self.Orbit_Data["Earth"]])
+        # Sensors_X = np.concatenate([self.Orbit_Data["Sun"],
+        #                                 self.Orbit_Data["Magnetometer"],
+        #                                 self.Orbit_Data["Earth"]])
+
+        Sensors_X = np.concatenate([self.Orbit_Data["Sun"], modelledSun,
+                    self.Orbit_Data["Magnetometer"], modelledMagnetometer, 
+                    self.Orbit_Data["Earth"], modelledEarth])
 
         if SET_PARAMS.SensorFDIR:
             self.DefineIfFault()
@@ -599,19 +600,48 @@ class Dynamics:
     def SensorIsolation(self, MovingAverageDict, Sensors_X, predictedFailure):
         FailedSensor = "None"
 
-        if SET_PARAMS.FeatureExtraction == "DMD":
-            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
-        
-        elif SET_PARAMS.FeatureExtraction == "None":
-            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
-
         if predictedFailure:
+
+            if SET_PARAMS.FeatureExtraction == "DMD":
+                Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
+            
+            elif SET_PARAMS.FeatureExtraction == "None":
+                Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
+            
             #! This should account for multiple predictions of failures
-            if SET_PARAMS.SensorIsolator == "DMD":
+            if SET_PARAMS.SensorIsolator == "PERFECT":
+                FailedSensor = self.implementedFailedSensor
+
+            elif SET_PARAMS.SensorIsolator == "OnlySun":
+                FailedSensor = "Sun"
+            
+            elif SET_PARAMS.SensorIsolator == "DMD":
                 FailedSensor = max(zip(MovingAverageDict.values(), MovingAverageDict.keys()))[1]
             
-            elif SET_PARAMS.SensorIsolator == "DecisionTrees":
-                arrayFault = self.DecisionTreeMulti.Predict(Sensors_X)
+            elif isinstance(SET_PARAMS.SensorIsolator, float):
+                randomValue = random.uniform(0,1)
+                if self.implementedFault != "None":
+                    predictedFailure2 = True if randomValue < SET_PARAMS.SensorIsolator/100 else False
+                else:
+                    predictedFailure2 = False if randomValue < SET_PARAMS.SensorIsolator/100 else True
+
+                if not predictedFailure2:
+                    failedSensorList = ["None", "Sun", "Earth", "Magnetometer", "reactionWheel"]
+                    failedSensorList.pop(failedSensorList.index(self.implementedFailedSensor))
+                    FailedSensor = failedSensorList[random.randint(0,3)]
+                else:
+                    FailedSensor = self.implementedFailedSensor
+            
+            else:
+                if SET_PARAMS.SensorIsolator == "DecisionTrees":
+                    arrayFault = self.DecisionTreeMulti.Predict(Sensors_X)
+
+                elif SET_PARAMS.SensorIsolator == "RandomForest":
+                    arrayFault = self.RandomForestMulti.Predict(Sensors_X)
+
+                elif SET_PARAMS.SensorIsolator == "SVM": 
+                    arrayFault = self.SVMmulti.Predict(Sensors_X)
+
                 arrayFault = arrayFault.replace("]", "").replace("[", "").replace(" ", "")
                 arrayFault = arrayFault.split(",")
                 indexFault = arrayFault.index("1")
@@ -622,47 +652,20 @@ class Dynamics:
                 elif fault in SET_PARAMS.EarthFailures:
                     FailedSensor = "Earth"
 
-                elif fault in SET_PARAMS.starTrackerFailures:
-                    FailedSensor = "Star"
+                # elif fault in SET_PARAMS.starTrackerFailures:
+                #     FailedSensor = "Star"
 
                 elif fault in SET_PARAMS.magnetometerFailures:
                     FailedSensor = "Magnetometer"
+                    self.Nm += self.NsolarMag
 
                 elif fault in SET_PARAMS.reactionWheelFailures:
                     FailedSensor = "reactionWheel"
 
-                print(FailedSensor, self.implementedFailedSensor)
-
-            elif SET_PARAMS.SensorIsolator == "RandomForest":
-                arrayFault = self.RandomForestMulti.Predict(np.array([np.concatenate([Sensors_X, self.MovingAverage.flatten()])]))
-                arrayFault = arrayFault.replace("]", "").replace("[", "").replace(" ", "")
-                arrayFault = arrayFault.split(",")
-                indexFault = arrayFault.index("1")
-                fault = SET_PARAMS.faultnames[indexFault + 1]
-                if fault in SET_PARAMS.SunFailures:
-                    FailedSensor = "Sun"
-                
-                elif fault in SET_PARAMS.EarthFailures:
-                    FailedSensor = "Earth"
-
-                elif fault in SET_PARAMS.starTrackerFailures:
-                    FailedSensor = "Star"
-
-                elif fault in SET_PARAMS.magnetometerFailures:
-                    FailedSensor = "Magnetometer"
-
-                elif fault in SET_PARAMS.reactionWheelFailures:
-                    FailedSensor = "reactionWheel"
-
-            elif SET_PARAMS.SensorIsolator == "PERFECT":
-                FailedSensor = self.implementedFailedSensor
-
-            elif SET_PARAMS.SensorIsolator == "OnlySun":
-                FailedSensor = "Sun"
+            # print(FailedSensor, self.implementedFailedSensor)
     
         else:
             FailedSensor = "None"
-
 
         return FailedSensor
 
@@ -900,12 +903,15 @@ class Dynamics:
                     # If the measured vector is equal to 0 then the sensor is not able to view the desired measurement
                     self.A_ORC_to_SBC_est, x, self.w_bo_est, P_k, self.angular_momentum_est, K_k = self.EKF.Kalman_update(v_measured_k, v_ORC_k, self.Nm, self.Nw, self.t)
             
-            self.P_k_est = P_k
-            self.K_k_est = K_k
-            self.q_est = x[3:]
-            self.w_bi_est = x[:3]
-            mean.append(np.mean(x))
-            covariance.append(np.mean(P_k))
+            try:
+                self.P_k_est = P_k
+                self.K_k_est = K_k
+                self.q_est = x[3:]
+                self.w_bi_est = x[:3]
+                mean.append(np.mean(x))
+                covariance.append(np.mean(P_k))
+            except:
+                pass
                     
 
         elif SET_PARAMS.Kalman_filter_use == "RKF":
@@ -1032,29 +1038,42 @@ class Single_Satellite(Dynamics):
         self.MovingAverage = 0
         self.predictedFailureValue = 0
         self.sensors_kalman = SET_PARAMS.kalmanSensors #Sun_Sensor, Earth_Sensor, Magnetometer
+        self.implementedFailedSensor = "None"
 
         self.moon = Moon()
 
-        if SET_PARAMS.FeatureExtraction == "DMD":
-            self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.RandomForestMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineBinaryClass.sav')
-            self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesBernoulliBinaryClass.sav')
-            self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesGaussianBinaryClass.sav')
-            self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+        if SET_PARAMS.SensorFDIR:
+            if SET_PARAMS.FeatureExtraction == "DMD":
+                self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineBinaryClass.sav')
+                self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineMultiClass.sav')
+                self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesBernoulliBinaryClass.sav')
+                self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesGaussianBinaryClass.sav')
+                self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
 
-        elif SET_PARAMS.FeatureExtraction == "None":
-            self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.RandomForestMulti = None # FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-            self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineBinaryClass.sav')
-            self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesBernoulliBinaryClass.sav')
-            self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesGaussianBinaryClass.sav')
-            self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'None/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
-        
+            elif SET_PARAMS.FeatureExtraction == "None":
+                self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+                self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineBinaryClass.sav')
+                self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineMultiClass.sav')
+                self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesBernoulliBinaryClass.sav')
+                self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesGaussianBinaryClass.sav')
+                self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'None/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+        else:
+            self.DecisionTreeBinary = None #FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.DecisionTreeMulti = None #FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.RandomForestBinary = None #FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            self.RandomForestMulti = None
+            self.SVM = None
+            self.SVMmulti = None
+            self.NBBernoulli = None
+            self.NBGaussian = None
+            self.IsolationForest = None
         # self.NN_Basic = load_model("models/ANN")
         self.stateBuffer = collections.deque(maxlen = SET_PARAMS.stateBufferLength)
         super().initiate_fault_parameters()
@@ -1330,28 +1349,30 @@ class Single_Satellite(Dynamics):
 
         if self.predictedFailure == self.Orbit_Data["Current fault binary"]:
             self.Orbit_Data["Prediction Accuracy"] = 1
+            self.Orbit_Data["Isolation Accuracy"] = 1 if self.implementedFailedSensor == self.predictedFailedSensor else 0
         else:
             self.Orbit_Data["Prediction Accuracy"] = 0
+            self.Orbit_Data["Isolation Accuracy"] = 1
 
-        if fault == "None":
-            FailedSensor = "None"
+        # if fault == "None":
+        #     FailedSensor = "None"
 
-        elif fault in SET_PARAMS.SunFailures:
-            FailedSensor = "Sun"
+        # elif fault in SET_PARAMS.SunFailures:
+        #     FailedSensor = "Sun"
         
-        elif fault in SET_PARAMS.EarthFailures:
-            FailedSensor = "Earth"
+        # elif fault in SET_PARAMS.EarthFailures:
+        #     FailedSensor = "Earth"
 
-        elif fault in SET_PARAMS.starTrackerFailures:
-            FailedSensor = "Star"
+        # elif fault in SET_PARAMS.starTrackerFailures:
+        #     FailedSensor = "Star"
 
-        elif fault in SET_PARAMS.magnetometerFailures:
-            FailedSensor = "Magnetometer"
+        # elif fault in SET_PARAMS.magnetometerFailures:
+        #     FailedSensor = "Magnetometer"
         
-        elif fault in SET_PARAMS.reactionWheelFailures:
-            FailedSensor = "reactionWheel"
+        # elif fault in SET_PARAMS.reactionWheelFailures:
+        #     FailedSensor = "reactionWheel"
 
-        self.Orbit_Data["Isolation Accuracy"] = 1 if FailedSensor == self.predictedFailedSensor else 0
+        
 
         Earth_Error = self.sensor_vectors["Earth_Sensor"]["True SBC"] - self.sensor_vectors["Earth_Sensor"]["Estimated SBC"]
 

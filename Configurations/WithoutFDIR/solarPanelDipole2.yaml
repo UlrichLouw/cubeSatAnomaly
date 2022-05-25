@@ -5,7 +5,7 @@ Kalman_filter_use: "EKF"
 sensor_number: "ALL"
 Number_of_orbits: 2
 fixed_orbit_failure: 0
-Number_of_multiple_orbits: 4
+Number_of_multiple_orbits: 3
 skip: 20
 Number_of_satellites: 1
 k_nearest_satellites: 5
@@ -13,7 +13,7 @@ FD_strategy: "Distributed"
 SensorFDIR: False
 Mode: "EARTH_SUN" # Nominal or EARTH_SUN
 stateBufferLength: 1 #! The reset value was 1 and worked quite well (100 was terrible)
-numFaultStart: 4
+numFaultStart: 3
 NumberOfRandom: 1
 NumberOfFailuresReset: 20
 Model_or_Measured: "ORC"

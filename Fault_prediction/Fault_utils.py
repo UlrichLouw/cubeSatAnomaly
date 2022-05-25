@@ -47,8 +47,8 @@ def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = Tr
 
     Data = Data.loc[:, ~Data.columns.str.contains("^Unnamed")]
 
-    if ignoreNormal:
-         Data = Data.loc[Data["Current fault binary"] != 0]
+    # if ignoreNormal:
+    #      Data = Data.loc[Data["Current fault binary"] != 0]
 
     Data = Data.loc[:, ~Data.columns.str.contains("^TimeStep")]
     Data = Data.loc[:, ~Data.columns.str.contains("Euler Angles")]

@@ -25,7 +25,7 @@ def GetData(path, index, n, all = False, first = False):
 
     return Datapgf
 
-def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, PerfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction,index, Number, Number_of_orbits, ALL = True, first = False, width = 8.0, height = 6.0):
+def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, PerfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction,index, Number, Number_of_orbits, ALL = True, first = False, width = 8.0, height = 6.0, plotColumns = ["Sun"]):
     SET_PARAMS.Mode = "EARTH_SUN"
     SET_PARAMS.Model_or_Measured = "ORC"
     SET_PARAMS.Number_of_orbits = Number_of_orbits
@@ -40,10 +40,10 @@ def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
         recoveryMethods = ["None"]
         recoverMethodsWithoutPrediction = ["None"]
 
-    plotColumns = ["Sun"]
+    # plotColumns = ["SolarPanelDipole Torques", "Magnetometer"]
     # plotColumns = ["Estimation Metric"]
 
-    path_of_execution = str(Path(__file__).parent.resolve()).split("/Satellite")[0] + "/Journal articles/My journal articles/Journal articles/Robust Kalman Filter/Figures/TexFigures"
+    path_of_execution = str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/TexFigures"
 
     Path(path_of_execution).mkdir(parents = True, exist_ok=True)
 
@@ -67,7 +67,7 @@ def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
             if perfectNoFailurePrediction:
                 GenericPath = GenericPath + "PerfectNoFailurePrediction/"
             
-            path = "Data files/"+ GenericPath + SET_PARAMS.Fault_names_values[index] + ".csv"
+            path = "Data files/"+ GenericPath + SET_PARAMS.Fault_names_values[index] + ".csv.gz"
             path = Path(path)
             Datapgf = GetData(path, index, n = Number, all = ALL, first = first) 
             

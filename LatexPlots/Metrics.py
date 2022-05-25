@@ -51,7 +51,7 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
     plotColumns = ["Prediction Accuracy", "Estimation Metric", "Pointing Metric"]
     # plotColumns = ["Estimation Metric"]
 
-    path_of_execution = str(Path(__file__).parent.resolve()).split("/Satellite")[0] + "/Journal articles/My journal articles/Journal articles/Robust Kalman Filter/Figures/TexFigures"
+    path_of_execution = str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/TexFigures"
 
     Path(path_of_execution).mkdir(parents = True, exist_ok=True)
 
@@ -135,6 +135,8 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
 
                 if perfectNoFailurePrediction:
                     path = path + "PerfectNoFailurePrediction/"
+
+                print(path)
 
                 Path(path).mkdir(parents = True, exist_ok=True)
 

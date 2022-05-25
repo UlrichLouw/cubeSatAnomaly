@@ -48,7 +48,7 @@ if __name__ == "__main__":
     for index in range(SET_PARAMS.Number_of_multiple_orbits):
         name = SET_PARAMS.Fault_names_values[index+1]
         print(name)
-        Y, Y_buffer, X, X_buffer, Orbit, ColumnNames, ClassNames = Dataset_order(name, binary_set, buffer, categorical_num, use_previously_saved_models, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomemntumSensors)
+        Y, Y_buffer, X, X_buffer, Orbit, ColumnNames, ClassNames = Dataset_order(name, binary_set, buffer, categorical_num, use_previously_saved_models, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors)
         All_orbits.append(Orbit)
 
     print(X.shape)

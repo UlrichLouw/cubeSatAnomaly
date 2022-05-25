@@ -1,11 +1,11 @@
 Display: False
-Visualize: False
+Visualize: True
 save_as: ".csv"
 Kalman_filter_use: "EKF"
 sensor_number: "ALL"
 Number_of_orbits: 30
 fixed_orbit_failure: 0
-Number_of_multiple_orbits: 2
+Number_of_multiple_orbits: 3
 skip: 20
 Number_of_satellites: 1
 k_nearest_satellites: 5
@@ -13,7 +13,7 @@ FD_strategy: "Distributed"
 SensorFDIR: True
 Mode: "EARTH_SUN" # Nominal or EARTH_SUN
 stateBufferLength: 1 #! The reset value was 1 and worked quite well (100 was terrible)
-numFaultStart: 2
+numFaultStart: 3
 NumberOfRandom: 1
 NumberOfFailuresReset: 20
 Model_or_Measured: "ORC"
@@ -25,19 +25,19 @@ kalmanSensors: ["Magnetometer", "Earth_Sensor", "Sun_Sensor"] #!, "Sun_Sensor"]"
 printBreak: False
 NumberOfIntegrationSteps: 10
 includeNone: False
-PredictionBuffer: [False, True]
+PredictionBuffer: [False]
 RecoveryBuffer: ["EKF-top2"]
 prefectNoFailurePrediction: [False]
 BufferValue: [10]
 BufferStep: [0.9]
-treeDepth: [10, 20, 100]
+treeDepth: [100]
 Contamination: [0.1]
 
 featureExtractionMethods: ["None"]
-predictionMethods: ["DecisionTrees"] # "DecisionTrees", "RandomForest", "SVM", "NaiveBayesBernoulli", "NaiveBayesGaussian"
-isolationMethods: ["DecisionTrees"]
+predictionMethods: [100.0] #, "SVM" #, "DecisionTrees", "RandomForest"] # , "DecisionTrees", "RandomForest", "SVM", "NaiveBayesBernoulli", "NaiveBayesGaussian"
+isolationMethods: [100.0] #["SVM"] #, "DecisionTrees", "RandomForest"] #, 90.0, 95.0, 100.0, "RandomForest", 'SVM'
 recoveryMethods: ["EKF-ignore"] #, "EKF-combination", "EKF-reset"] #"EKF-ignore", 
-recoverMethodsWithoutPrediction: ["None", "EKF-top2"] #, "EKF-top2"]
+recoverMethodsWithoutPrediction: ["EKF-top2"] #, "EKF-top2"]
 
 settling_time: 150 #! Was 200 3 Dec 10:36
 damping_coefficient: 0.707
