@@ -4,14 +4,14 @@ import LatexPlots.Summary as Summary
 
 
 if __name__ == '__main__':
-    featureExtractionMethods = ["DMD"]
-    isolationMethods = ["None", "OnlySun"]
-    recoveryMethods = ["EKF-ignore"] #, "EKF-combination", "EKF-reset", "EKF-top2"] #,  "EKF-top2"
-    recoverMethodsWithoutPrediction = ["EKF-top2"]
+    featureExtractionMethods = ["None"]
+    predictionMethod = ["DecisionTrees", "SVM", "RandomForest"] #, 'LOF']  #, "SVM", "NaiveBayesBernoulli", "NaiveBayesGaussian", "Isolation_Forest", "PERFECT", 50.0, 60.0, 70.0, 80.0, 90.0, 95.0, 97.5, 99.0, 99.5, 99.9]
+    isolationMethod =  [90.0, 95.0, 99.0, 100.0] #, "SVM"]#["DecisionTrees", "RandomForest", "SVM"] #, "RandomForest", "SVM"]
+    recoveryMethods = ['EKF-ignore'] #, 'EKF-combination', 'EKF-reset'] #, "EKF-top2"] #,  "EKF-top2"
+    recoverMethodsWithoutPrediction = ["None"] #, "EKF-top2"]
     plotColumns = ["Prediction Accuracy", "Estimation Metric", "Pointing Metric"] #"Prediction Accuracy", 
-    treeDepth = [20] # [5, 10, 20, 100]
+    treeDepth = [100] # [5, 10, 20, 100]
 
-    predictionMethod = ["RandomForest"] #"DecisionTrees", "RandomForest"]  #, "SVM", "NaiveBayesBernoulli", "NaiveBayesGaussian", "Isolation_Forest", "PERFECT", 50.0, 60.0, 70.0, 80.0, 90.0, 95.0, 97.5, 99.0, 99.5, 99.9]
 
     RecoveryBuffer = ["EKF-top2"]
     PredictionBuffer = [False]
@@ -20,11 +20,11 @@ if __name__ == '__main__':
 
     perfectNoFailurePrediction = [False]
 
-    groupBy = "recovery"
-    tag = "RF20DT20"
+    groupBy = "prediction"
+    tag = "VaryingPercentageIsolation"
     includeNone = False
     bbox_to_anchor = (0.5, 0.5, 0.5, 0.5)
-    legend = "prediction"
+    legend = "isolation"
 
     loc = 1
 
@@ -33,6 +33,7 @@ if __name__ == '__main__':
     linewidth = 1
 
     predictionMethods = []
+    isolationMethods = []
 
     for prediction in predictionMethod:
         if prediction == "DecisionTrees" or prediction == "RandomForest":
@@ -41,26 +42,35 @@ if __name__ == '__main__':
         else:
             predictionMethods.append(prediction)
 
-    featureExtractionMethods = ["DMD"]
-    isolationMethods = ["None"]
-    recoveryMethods = ["None"] #, "EKF-combination", "EKF-reset", "EKF-top2"] #,  "EKF-top2"
-    recoverMethodsWithoutPrediction = ["None"]
+    for isolation in isolationMethod:
+        if isolation == "DecisionTrees" or isolation == "RandomForest":
+            for depth in treeDepth:
+                isolationMethods.append(isolation + str(depth))
+        else:
+            isolationMethods.append(isolation)
+
+
+
     plotColumns = ["Prediction Accuracy", "Estimation Metric", "Pointing Metric"]
-    predictionMethods = ["None"]
 
-    index = 1
+    index = 2
 
-    plotColumns = ["SolarPanelDipole Torques", "Magnetometer"]
+    # plotColumns = ["SolarPanelDipole Torques", "Magnetometer"]
 
     # plotColumns = ["Earth"] #, "Magnetometer"]
 
-    # plotColumns = ["Sun", "Magnetometer"]
+    # plotColumns = ["Sun", "Magnetometer", "Earth", "Angular momentum of wheels", "Aerodynamic Torques", "Wheel disturbance Torques", "Gravity Gradient Torques", "Magnetic Control Torques", "Wheel Control Torques", "SolarPanelDipole Torques"]
 
-    plotColumns = ["Earth"]
+    # plotColumns = ["DMD"] #, "DMD"]
 
-    # Metrics.MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 30, first = True, ALL = False, width = 8.0, height = 6.0, linewidth = linewidth, grid = grid, plotStyle = plotStyle)
-    Vectors.VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 5, first = True, ALL = False, width = 8.0, height = 6.0, plotColumns = plotColumns)
-    # Summary.SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, includeNone, bbox_to_anchor, loc, plotColumns, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 30, Number_of_orbits = 30, first = True, ALL = True, width = 8.0, height = 6.0, groupBy = groupBy, uniqueTag = tag)
+    width = 12
+    height = 9
+
+    singleValue = ["DMD"] #, "DMD"]
+
+    # Metrics.MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 30, first = True, ALL = False, width = width, height = height, linewidth = linewidth, grid = grid, plotStyle = plotStyle)
+    # Vectors.VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, bbox_to_anchor, loc, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 2, Number_of_orbits = 5, first = True, ALL = False, width = width, height = height, plotColumns = plotColumns, singleValue = singleValue)
+    Summary.SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, perfectNoFailurePrediction, includeNone, bbox_to_anchor, loc, plotColumns, featureExtractionMethods, predictionMethods, isolationMethods, recoveryMethods, recoverMethodsWithoutPrediction, index = index, Number = 30, Number_of_orbits = 30, first = True, ALL = True, width = width, height = height, groupBy = groupBy, uniqueTag = tag)
 
 
 

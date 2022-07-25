@@ -292,10 +292,10 @@ def multiIndexToLatex(df, headers, columsPosition = "c", tablePosition = "[]", c
 
 if __name__ == "__main__":
     doNotOverwriteSummary = False
-    featureExtractionMethods = ["None"]
+    featureExtractionMethods = ["None", "LOF", "DMD"]
     treeDepth = [100] #[5, 10, 20, 100]
-    predictionMethod = ["None", "DecisionTrees", "RandomForest", "SVM"] #, "NaiveBayesBernoulli", "NaiveBayesGaussian", "Isolation_Forest", 50.0, 60.0, 70.0, 80.0, 90.0, 92.5, 95.0, 97.5, 99.0, 99.5, 99.9] #   
-    isolationMethod = ["None", "DecisionTrees", "RandomForest", "SVM"]
+    predictionMethod = [100.0, "DecisionTrees", "RandomForest", "SVM", "IsolationForest", "LOF", 70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0] #, "NaiveBayesBernoulli", "NaiveBayesGaussian", , 50.0, 60.0, 70.0, 80.0, 90.0, 92.5, 95.0, 97.5, 99.0, 99.5, 99.9] #   
+    isolationMethod = [100.0, "DecisionTrees", "RandomForest", "SVM", 70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0]
     predictionMethods = []
     isolationMethods = []
 
@@ -314,8 +314,8 @@ if __name__ == "__main__":
             isolationMethods.append(isolation)
 
      #! "RandomForest", 
-    recoveryMethods = ["EKF-ignore"] #, "EKF-combination", "EKF-reset", "EKF-top2"] # 
-    recoverMethodsWithoutPrediction = ["EKF-top2"]
+    recoveryMethods = ["EKF-ignore", "EKF-combination", "EKF-reset"] #, "EKF-top2"] # 
+    recoverMethodsWithoutPrediction = ["None", "EKF-top2"]
     # predictionMethods = ["DecisionTrees"]
     # isolationMethods = ["RandomForest"] #! "RandomForest", 
     # recoveryMethods = ["EKF-replacement"]
@@ -324,12 +324,12 @@ if __name__ == "__main__":
     SET_PARAMS.Number_of_orbits = 30
 
     SET_PARAMS.RecoveryBuffer = ["EKF-top2"]
-    SET_PARAMS.PredictionBuffer = [False, True]
+    SET_PARAMS.PredictionBuffer = [False] #, True]
     SET_PARAMS.BufferValue = [10]
     SET_PARAMS.BufferStep = [0.9]
     SET_PARAMS.perfectNoFailurePrediction =[False] #, True]
 
-    # index = 2
+    index = 2
 
     includeNone = True
 
@@ -337,91 +337,85 @@ if __name__ == "__main__":
 
     orbitsToLatex = [1, 2, 3, 4, 5, 30]
 
+    nameDict = {x: [] for x in nameList}
 
+    summaryDict = {x: 0 for x in nameList}
 
-    for name in nameList:
-        for index in range(2,4):
+    for index in range(2,4):
+        for name in nameList:
             if doNotOverwriteSummary:
                 path = "Data files/Summary/" + name + "/" + SET_PARAMS.Fault_names_values[index] + ".csv"
 
                 prevSummary = pd.read_csv(path)
 
-            path = "Data files/Summary/" + name + "/"
+                summaryDict[name] = prevSummary
 
-            path_to_folder = Path(path)
-            path_to_folder.mkdir(parents = True, exist_ok=True)
 
-            filename = path + SET_PARAMS.Fault_names_values[index] + ".csv"
 
-            if os.path.exists(filename) and not doNotOverwriteSummary:
-                os.remove(filename)
+        # with open(filename, 'w') as csvfile:
+        # creating a csv writer object
+            # csvwriter = csv.writer(csvfile)
 
-            # with open(filename, 'w') as csvfile:
-            # creating a csv writer object
-                # csvwriter = csv.writer(csvfile)
+        pathParams = createParams(SET_PARAMS.PredictionBuffer, SET_PARAMS.perfectNoFailurePrediction, SET_PARAMS.BufferValue, SET_PARAMS.BufferStep, SET_PARAMS.RecoveryBuffer)
 
-            pathParams = createParams(SET_PARAMS.PredictionBuffer, SET_PARAMS.perfectNoFailurePrediction, SET_PARAMS.BufferValue, SET_PARAMS.BufferStep, SET_PARAMS.RecoveryBuffer)
-        
-            dfList = []
-            for predictionBuffer, perfectNoFailurePrediction, bufferValue, bufferStep, recoveryBuffer in pathParams:
+        for predictionBuffer, perfectNoFailurePrediction, bufferValue, bufferStep, recoveryBuffer in pathParams:
 
-                path_of_execution = str(Path(__file__).parent.resolve()).split("/Satellite")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Tables/" + name
+            path_of_execution = str(Path(__file__).parent.resolve()).split("/Satellite")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Tables/" + name
 
-                if predictionBuffer:
-                    path_of_execution = path_of_execution + "BufferValue-" + str(bufferValue) + "BufferStep-" + str(bufferStep) + recoveryBuffer + "/"
+            if predictionBuffer:
+                path_of_execution = path_of_execution + "BufferValue-" + str(bufferValue) + "BufferStep-" + str(bufferStep) + recoveryBuffer + "/"
 
-                if perfectNoFailurePrediction:
-                    path_of_execution = path_of_execution + "PerfectNoFailurePrediction/"
+            if perfectNoFailurePrediction:
+                path_of_execution = path_of_execution + "PerfectNoFailurePrediction/"
 
-                Path(path_of_execution).mkdir(parents = True, exist_ok=True)
+            Path(path_of_execution).mkdir(parents = True, exist_ok=True)
 
-                satelliteFDIRParams = createParams(featureExtractionMethods, recoveryMethods, predictionMethods, isolationMethods)
+            satelliteFDIRParams = createParams(featureExtractionMethods, recoveryMethods, predictionMethods, isolationMethods)
+                
+            for extraction, recovery, prediction, isolation in satelliteFDIRParams:
+                if (recovery in recoverMethodsWithoutPrediction and prediction == "None" and isolation == "None" and not predictionBuffer and not perfectNoFailurePrediction) or (prediction != "None" and isolation != "None" and recovery not in recoverMethodsWithoutPrediction):
+                    SET_PARAMS.FeatureExtraction = extraction
+                    SET_PARAMS.SensorPredictor = str(prediction)
+                    SET_PARAMS.SensorIsolator = str(isolation)
+                    SET_PARAMS.SensorRecoveror = recovery
+                    GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
+                    method = extraction + str(prediction) + str(isolation) + recovery + SET_PARAMS.Fault_names_values[index] 
+
+                    if predictionBuffer:
+                        GenericPath = GenericPath + "BufferValue-" + str(bufferValue) + "BufferStep-" + str(bufferStep) + recoveryBuffer + "/"
+                        method += str(bufferValue) + str(bufferStep) + recoveryBuffer
+
+                    if perfectNoFailurePrediction:
+                        GenericPath = GenericPath + "PerfectNoFailurePrediction/"
+                        method += str("perfectNoFailurePrediction")
+
+                    path1 = "Data files/"+ GenericPath + SET_PARAMS.Fault_names_values[index] 
                     
-                for extraction, recovery, prediction, isolation in satelliteFDIRParams:
-                    if (recovery in recoverMethodsWithoutPrediction and prediction == "None" and isolation == "None" and not predictionBuffer and not perfectNoFailurePrediction) or (prediction != "None" and isolation != "None" and recovery not in recoverMethodsWithoutPrediction):
-                        SET_PARAMS.FeatureExtraction = extraction
-                        SET_PARAMS.SensorPredictor = str(prediction)
-                        SET_PARAMS.SensorIsolator = str(isolation)
-                        SET_PARAMS.SensorRecoveror = recovery
-                        GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/" + SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
-                        method = extraction + str(prediction) + str(isolation) + recovery + SET_PARAMS.Fault_names_values[index] 
+                    execute = True
+                    print("Begin: " + method)
+                    if doNotOverwriteSummary:
+                        if method in prevSummary["Unnamed: 0"]:
+                            execute =  False
+                    
+                    if execute:
+                        path = Path(path1 + ".csv.gz")
 
-                        if predictionBuffer:
-                            GenericPath = GenericPath + "BufferValue-" + str(bufferValue) + "BufferStep-" + str(bufferStep) + recoveryBuffer + "/"
-                            method += str(bufferValue) + str(bufferStep) + recoveryBuffer
+                        NoDataFrame = False
+                        try:
+                            df = pd.read_csv(path, engine='c')
+                        except:
+                            df = None
 
-                        if perfectNoFailurePrediction:
-                            GenericPath = GenericPath + "PerfectNoFailurePrediction/"
-                            method += str("perfectNoFailurePrediction")
-
-                        path1 = "Data files/"+ GenericPath + SET_PARAMS.Fault_names_values[index] 
-                        
-                        execute = True
-                        print("Begin: " + method)
-                        if doNotOverwriteSummary:
-                            if method in prevSummary["Unnamed: 0"]:
-                                execute =  False
-                        
-                        if execute:
-                            path = Path(path1 + ".csv.gz")
-
-                            NoDataFrame = False
-
-                            #try:
-                            dataFrame, cm = SaveSummary(path, method, str(recovery), str(prediction), name, specific = True)
-                            #except:
-                            #    NoDataFrame = True 
-                            # except:
-                            #     try:
-                            #         path = Path(path1 + ".csv")
-                            #         dataFrame, cm = SaveSummary(path, method, str(recovery), str(prediction), name, specific = True)
-                            #     except:
-                            #         NoDataFrame = True  
+                        for name in nameList:
+                            try:
+                                dataFrame, cm = SaveSummary(path, method, str(recovery), str(prediction), name, DataFrame = df, specific = True)
+                            except:
+                                NoDataFrame = True 
 
                             if not NoDataFrame:
                                 # writing the fields
                                 # csvwriter.writerow(dataFrame)
-                                dfList.append(dataFrame.copy())
+                                nameDict[name].append(dataFrame.copy())
 
                                 if (cm != None).any():
                                     df = pd.DataFrame(cm)  
@@ -434,36 +428,62 @@ if __name__ == "__main__":
                                     f = open(Path(path_of_execution + "/" + name + "-" + method + "-" + SET_PARAMS.Fault_names_values[index] + ".tex"),"w")
 
                                     f.write(string)
-                                        
-            SET_PARAMS.FeatureExtraction = "DMD"
-            SET_PARAMS.SensorPredictor = "None"
-            SET_PARAMS.SensorIsolator = "None"
-            SET_PARAMS.SensorRecoveror = "None"
-            GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
-            path = "Data files/"+ GenericPath + "/" + SET_PARAMS.Fault_names_values[index]
-            method = "DMD" + "None" + "None" + "None" + SET_PARAMS.Fault_names_values[index]
-            print("Begin: " + method)
-            path = Path(path + ".csv")
-            dataFrame, cm = SaveSummary(path, method, "Failure Design", "None", name, getData = False, DataFrame = pd.read_csv(path, engine='c'))
-            dfList.append(dataFrame.copy())
+
+        for name in nameList:             
+            # SET_PARAMS.FeatureExtraction = "DMD"
+            # SET_PARAMS.SensorPredictor = "None"
+            # SET_PARAMS.SensorIsolator = "None"
+            # SET_PARAMS.SensorRecoveror = "None"
+            # GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
+            # path = "Data files/"+ GenericPath + "/" + SET_PARAMS.Fault_names_values[index]
+            # method = "DMD" + "None" + "None" + "None" + SET_PARAMS.Fault_names_values[index]
+            # print("Begin: " + method)
+            # path = Path(path + ".csv.gz")
+            # dataFrame, cm = SaveSummary(path, method, "Failure Design", "None", name, getData = False, DataFrame = pd.read_csv(path, engine='c'))
+            # nameDict[name].append(dataFrame.copy())
             # csvwriter.writerow(dataFrame)
 
             if includeNone:
-                SET_PARAMS.FeatureExtraction = "DMD"
+                SET_PARAMS.FeatureExtraction = "None"
+                SET_PARAMS.SensorPredictor = "None"
+                SET_PARAMS.SensorIsolator = "None"
+                SET_PARAMS.SensorRecoveror = "None"
+                GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
+                path = "Data files/"+ GenericPath + "/" + SET_PARAMS.Fault_names_values[index] 
+                method = "None" + "None" + "None" + "None" + SET_PARAMS.Fault_names_values[index] 
+                print("Begin: " + method)
+                path = Path(path + ".csv.gz")
+                dataFrame, cm = SaveSummary(path, method, "Perfect Design", "None", name, getData = False, DataFrame = pd.read_csv(path, engine='c'))
+                nameDict[name].append(dataFrame.copy())
+                # csvwriter.writerow(dataFrame)
+
+            if includeNone:
+                SET_PARAMS.FeatureExtraction = "None"
                 SET_PARAMS.SensorPredictor = "None"
                 SET_PARAMS.SensorIsolator = "None"
                 SET_PARAMS.SensorRecoveror = "None"
                 GenericPath = "FeatureExtraction-" + str(SET_PARAMS.FeatureExtraction) + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+SET_PARAMS.Model_or_Measured +"/" + "General CubeSat Model/"
                 path = "Data files/"+ GenericPath + "/" + "None"
-                method = "DMD" + "None" + "None" + "None" + "None"
+                method = "None" + "None" + "None" + "None" + "None"
                 print("Begin: " + method)
-                path = Path(path + ".csv")
+                path = Path(path + ".csv.gz")
                 dataFrame, cm = SaveSummary(path, method, "Perfect Design", "None", name, getData = False, DataFrame = pd.read_csv(path, engine='c'))
-                dfList.append(dataFrame.copy())
-                # csvwriter.writerow(dataFrame)
+                nameDict[name].append(dataFrame.copy())
 
-            dataFrame = pd.concat(dfList)
-            # save_as_csv(dataFrame, filename = SET_PARAMS.Fault_names_values[index], index = index, path = path,  float_format="%.2f")
+        # save_as_csv(dataFrame, filename = SET_PARAMS.Fault_names_values[index], index = index, path = path,  float_format="%.2f")
+
+        for name in nameList:
+            dataFrame = pd.concat(nameDict[name])
+            path = "Data files/Summary/" + name + "/"
+
+            path_to_folder = Path(path)
+            path_to_folder.mkdir(parents = True, exist_ok=True)
+
+            filename = path + SET_PARAMS.Fault_names_values[index] + ".csv"
+
+            if os.path.exists(filename) and not doNotOverwriteSummary:
+                os.remove(filename)
+
             dataFrame.to_csv(filename)
 
             for orbit in range(1,SET_PARAMS.Number_of_orbits+1):

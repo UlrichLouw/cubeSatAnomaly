@@ -1,5 +1,5 @@
 Display: False
-Visualize: True
+Visualize: False
 save_as: ".csv"
 Kalman_filter_use: "EKF"
 sensor_number: "ALL"
@@ -13,7 +13,7 @@ FD_strategy: "Distributed"
 SensorFDIR: True
 Mode: "EARTH_SUN" # Nominal or EARTH_SUN
 stateBufferLength: 1 #! The reset value was 1 and worked quite well (100 was terrible)
-numFaultStart: 3
+numFaultStart: 2
 NumberOfRandom: 1
 NumberOfFailuresReset: 20
 Model_or_Measured: "ORC"
@@ -25,19 +25,20 @@ kalmanSensors: ["Magnetometer", "Earth_Sensor", "Sun_Sensor"] #!, "Sun_Sensor"]"
 printBreak: False
 NumberOfIntegrationSteps: 10
 includeNone: False
-PredictionBuffer: [False]
+PredictionBuffer: [False] #, True]
 RecoveryBuffer: ["EKF-top2"]
 prefectNoFailurePrediction: [False]
 BufferValue: [10]
 BufferStep: [0.9]
 treeDepth: [100]
 Contamination: [0.1]
+combination: True
 
-featureExtractionMethods: ["None"]
-predictionMethods: [100.0] #, "SVM" #, "DecisionTrees", "RandomForest"] # , "DecisionTrees", "RandomForest", "SVM", "NaiveBayesBernoulli", "NaiveBayesGaussian"
-isolationMethods: [100.0] #["SVM"] #, "DecisionTrees", "RandomForest"] #, 90.0, 95.0, 100.0, "RandomForest", 'SVM'
-recoveryMethods: ["EKF-ignore"] #, "EKF-combination", "EKF-reset"] #"EKF-ignore", 
-recoverMethodsWithoutPrediction: ["EKF-top2"] #, "EKF-top2"]
+featureExtractionMethods: ['None'] #,'LOF', 'DMD']
+predictionMethods: ["IsolationForest", "LOF", "DecisionTrees", "RandomForest", "SVM"]
+isolationMethods: [70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0, 100.0] #, ] #[100.0] #["DecisionTrees", "RandomForest", "SVM"]
+recoveryMethods: ["EKF-ignore"] #"EKF-ignore", 
+recoverMethodsWithoutPrediction: ["None", "EKF-top2"]
 
 settling_time: 150 #! Was 200 3 Dec 10:36
 damping_coefficient: 0.707

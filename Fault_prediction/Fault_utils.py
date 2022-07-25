@@ -16,7 +16,7 @@ def Binary_split(classified_data):
 
     return classified_data
 
-def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = True, ControlInput = False, onlySensors = False, use_previously_saved_models = False, columns_compare = None, columns_compare_to = None, constellation = False, onlyCurrentSatellite = True, multi_class = False, MovingAverage = True, includeAngularMomemntumSensors = False, includeModelled = False, ignoreNormal = False):
+def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = True, ControlInput = False, onlySensors = False, use_previously_saved_models = False, columns_compare = None, columns_compare_to = None, constellation = False, onlyCurrentSatellite = True, multi_class = False, MovingAverage = True, includeAngularMomemntumSensors = False, includeModelled = False, ignoreNormal = False, featureExtractionMethod = "None"):
     # If multi-class and constellation, then the output should be a list of which satellite has failed
     X_buffer = []
     Y_buffer = []  
@@ -97,6 +97,9 @@ def Dataset_order(index, binary_set, buffer, categorical_num, controlInputx = Tr
 
     else:
         Data = Data.loc[:, ~Data.columns.str.contains('Moving Average')]
+        if featureExtractionMethod == "LOF":
+            Data['LOF'] = Data['LOF'].str.replace(r'\[', '', regex=True)
+            Data['Moving Average'] = Data['LOF'].str.replace(r'\]', '', regex=True).apply(np.float32)
 
     if constellation and multi_class:
         Orbit = Data.copy()

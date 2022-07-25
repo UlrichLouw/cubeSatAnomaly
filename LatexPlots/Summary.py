@@ -114,13 +114,18 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    # method = "NoneNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
+                    # plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(legendName)
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -144,6 +149,8 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
 
                 plt.xlabel("Number of Orbits", fontsize = int(width))
 
+                # plt.ylim([0, 10])
+
                 if "Metric" in name:
                     plt.ylabel("$\\theta$ (deg)", fontsize = int(width))
                 else:
@@ -160,13 +167,16 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
+                    plt.plot(range(len(plotData)), plotData)
 
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -206,13 +216,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -251,13 +263,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -296,13 +310,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -342,13 +358,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -388,13 +406,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)
@@ -434,13 +454,15 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                         legendNames.append(legendName)  
                         plt.plot(range(len(plotData)), plotData)
 
-                    if includeNone:
-                        method = "DMDNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
+                if includeNone:
+                    legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
+                                                        prediction = "None", bufferValue = bufferValue, bufferStep = bufferStep, 
+                                                        recoveryBuffer = recoveryBuffer, predictionBuffer = predictionBuffer, 
+                                                        perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
+                                                        index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                        plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
-
-                        plt.plot(range(len(plotData)), plotData)
-                        legendNames.append(str("None"))
+                    plt.plot(range(len(plotData)), plotData)
+                    legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
                     plt.legend(legendNames, loc = loc, fontsize = int(width), bbox_to_anchor=bbox_to_anchor, handlelength = 0.2)

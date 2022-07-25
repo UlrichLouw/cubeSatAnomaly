@@ -32,8 +32,9 @@ BufferValue: [10]
 BufferStep: [0.9]
 treeDepth: [20]
 Contamination: [0.1]
+combination: False
 
-featureExtractionMethods: ["DMD"]
+featureExtractionMethods: ["None", "DMD", "LOF"]
 predictionMethods: ["None"]
 isolationMethods: ["None"]
 recoveryMethods: ["None"]

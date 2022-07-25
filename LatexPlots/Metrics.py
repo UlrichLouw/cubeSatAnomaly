@@ -111,7 +111,7 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
                 if grid:
                     plt.grid(visible = True, which = 'both')
 
-                plt.xlabel("Time: (s)", fontsize = int(width))
+                plt.xlabel("Time: ($s$)", fontsize = int(width))
 
                 if "Metric" in col:
                     plt.ylabel("$\\theta$ (deg)", fontsize = int(width))
@@ -135,8 +135,6 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
 
                 if perfectNoFailurePrediction:
                     path = path + "PerfectNoFailurePrediction/"
-
-                print(path)
 
                 Path(path).mkdir(parents = True, exist_ok=True)
 

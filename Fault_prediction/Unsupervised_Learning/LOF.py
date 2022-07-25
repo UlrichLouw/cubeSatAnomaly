@@ -1,10 +1,20 @@
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.neighbors import LocalOutlierFactor
 from Simulation.Parameters import SET_PARAMS
 from Fault_prediction.Fault_utils import Dataset_order
 from sklearn.metrics import confusion_matrix
 import pickle
+from pathlib import Path
+
+matplotlib.use("pgf")
+matplotlib.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 
 np.random.seed(42)
 
@@ -62,7 +72,7 @@ def LOF(path, featureExtractionMethod, constellation, multi_class, lowPrediction
     testing_Y = Y[~mask]
 
     # fit the model for outlier detection (default)
-    clf = LocalOutlierFactor(n_neighbors=1000, contamination=0.1, novelty = True, n_jobs = -1)
+    clf = LocalOutlierFactor(n_neighbors=1000, contamination=0.01, novelty = True, n_jobs = -1)
 
     # use fit_predict to compute the predicted labels of the training samples
     # (when LOF is used for outlier detection, the estimator has no predict,
@@ -77,10 +87,10 @@ def LOF(path, featureExtractionMethod, constellation, multi_class, lowPrediction
 
     print('LOF', cm)
 
-    # n_errors = (y_pred != testing_Y).sum()
-    # X_scores = clf.negative_outlier_factor_
+    n_errors = (y_pred != testing_Y).sum()
+    X_scores = clf.negative_outlier_factor_
 
-    # print(X_scores)
+    print(X_scores)
 
     # plt.title("Local Outlier Factor (LOF)")
     # plt.scatter(X[:, 0], X[:, 1], color='k', s=3., label='Data points')
@@ -95,10 +105,13 @@ def LOF(path, featureExtractionMethod, constellation, multi_class, lowPrediction
     # legend = plt.legend(loc='upper left')
     # legend.legendHandles[0]._sizes = [10]
     # legend.legendHandles[1]._sizes = [20]
-    # plt.show()
+
+    # plt.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'LOF.pgf'))
+
+    # plt.close()
 
     if multi_class:
-        pickle.dump(clf, open(path + '/LOF' + featureExtractionMethod  + 'MultiClass.sav', 'wb'))
+        pickle.dump(clf, open(path + '/LOFMultiClass.sav', 'wb'))
     else:
-        pickle.dump(clf, open(path + '/LOF' + featureExtractionMethod  + 'BinaryClass.sav', 'wb'))
+        pickle.dump(clf, open(path + '/LOFBinaryClass.sav', 'wb'))
 

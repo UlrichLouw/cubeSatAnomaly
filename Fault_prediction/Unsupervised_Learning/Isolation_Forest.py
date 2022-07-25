@@ -81,7 +81,7 @@ def IsoForest(path, featureExtractionMethod, constellation, multi_class, lowPred
 
     random_state = np.random.RandomState(42)
 
-    Y = Y *-2
+    Y = Y *(-2)
 
     Y = Y + 1
 
@@ -91,29 +91,27 @@ def IsoForest(path, featureExtractionMethod, constellation, multi_class, lowPred
 
         model.fit(X)
 
-        scores = model.decision_function(X)
+        # scores = model.decision_function(X)
 
-        anomaly_score = model.predict(X)
+        # anomaly_score = model.predict(X)
 
+        # # step = []
 
+        # # initVal = Y[0]
 
-        # step = []
+        # # for val in Y:
+        # #     if val != initVal:
+        # #         step.append(-1)
+        # #     else:
+        # #         step.append(1)
+        # #     initVal = val
 
-        # initVal = Y[0]
+        # # step = np.array(step)
 
-        # for val in Y:
-        #     if val != initVal:
-        #         step.append(-1)
-        #     else:
-        #         step.append(1)
-        #     initVal = val
+        # accuracy = 100*list(anomaly_score).count(-1)/(np.count_nonzero(Y==-1))
+        # cm = confusion_matrix(anomaly_score, Y)
 
-        # step = np.array(step)
-
-        accuracy = 100*list(anomaly_score).count(-1)/(np.count_nonzero(Y==-1))
-        cm = confusion_matrix(anomaly_score, Y)
-
-        print('Isolation Forest', cm)
+        # print('Isolation Forest', cm)
 
         # cm = confusion_matrix(anomaly_score, step)
 

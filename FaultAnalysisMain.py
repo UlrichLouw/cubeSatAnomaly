@@ -21,11 +21,11 @@ import multiprocessing
 np.set_printoptions(threshold=500)
 
 if __name__ == '__main__':
-    SET_PARAMS.Visualize = True
+    SET_PARAMS.Visualize = False
     SET_PARAMS.sensor_number = 0
     SET_PARAMS.Kalman_filter_use = "EKF"
     SET_PARAMS.Mode = "EARTH_SUN"
-    SET_PARAMS.FeatureExtraction = "DMD"
+    SET_PARAMS.FeatureExtraction = "None"
     SET_PARAMS.SensorPredictor = "None"
     SET_PARAMS.SensorRecoveror = "None" 
     SET_PARAMS.SensorIsolator = "None"
@@ -34,13 +34,17 @@ if __name__ == '__main__':
     SET_PARAMS.Model_or_Measured = "ORC"
     singleAnomaly = False
     constellation = False
-    multi_class = False
+    multi_class = True
     lowPredictionAccuracy = False
     MovingAverage = False
-    includeAngularMomentumSensors = True
-    includeModelled = True
-    featureExtractionMethod = "None"
+    includeAngularMomentumSensors = False
+    includeModelled = False
 
+    if SET_PARAMS.FeatureExtraction == "DMD":
+        MovingAverage = True
+
+    featureExtractionMethod = SET_PARAMS.FeatureExtraction
+    
     treeDepth = [100] #5, 10, 20, 
 
     GenericPath = "FeatureExtraction-" + SET_PARAMS.FeatureExtraction + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"/"+ SET_PARAMS.Model_or_Measured +"/" +"General CubeSat Model/"
@@ -60,10 +64,7 @@ if __name__ == '__main__':
     # DecisionTree training
     NBType = ["Bernoulli", "Gaussian"] #"Gaussian", 
 
-    if MovingAverage:
-        tag = "DMD"
-    else:
-        tag = "None"
+    tag = SET_PARAMS.FeatureExtraction
 
     X_list = []
     Y_list = []
@@ -95,9 +96,9 @@ if __name__ == '__main__':
             for index in range(startNum, SET_PARAMS.number_of_faults):
                 name = SET_PARAMS.Fault_names_values[index+1]
                 if multi_class:
-                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, constellation = constellation, multi_class = True, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
+                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, constellation = constellation, multi_class = True, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal, featureExtractionMethod = SET_PARAMS.FeatureExtraction)
                 else:
-                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, constellation = constellation, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
+                    Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, constellation = constellation, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal, featureExtractionMethod = SET_PARAMS.FeatureExtraction)
                 X_list.append(X)    
                 Y_list.append(Y)
 
@@ -107,9 +108,9 @@ if __name__ == '__main__':
             print(name)
             anomalyNames.append(name)
             if multi_class:
-                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
+                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = False, categorical_num = True, buffer = buffer, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal, featureExtractionMethod = SET_PARAMS.FeatureExtraction)
             else:
-                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal)
+                Y, _, X, _, _, ColumnNames, ClassNames = Dataset_order(name, binary_set = True, buffer = buffer, categorical_num = False, MovingAverage = MovingAverage, includeAngularMomemntumSensors = includeAngularMomentumSensors, includeModelled = includeModelled, ignoreNormal = ignoreNormal, featureExtractionMethod = SET_PARAMS.FeatureExtraction)
             X_list.append(X)    
             Y_list.append(Y)
 
@@ -130,21 +131,21 @@ if __name__ == '__main__':
     # threads.append(t)
     # t.start()
 
-    t = multiprocessing.Process(target=SupportVectorMachines.SVM, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames))
-    threads.append(t)
-    t.start()
-
     # t = multiprocessing.Process(target=Isolation_Forest.IsoForest, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames))
     # threads.append(t)
     # t.start()
 
-    # t = multiprocessing.Process(target=DecisionForests.DecisionTreeAllAnomalies, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames, anomalyNames))
-    # threads.append(t)
-    # t.start()
+    t = multiprocessing.Process(target=SupportVectorMachines.SVM, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames))
+    threads.append(t)
+    t.start()
 
-    # t = multiprocessing.Process(target=Random_Forest.Random_Forest, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames))
-    # threads.append(t)
-    # t.start()
+    t = multiprocessing.Process(target=DecisionForests.DecisionTreeAllAnomalies, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames, anomalyNames))
+    threads.append(t)
+    t.start()
+
+    t = multiprocessing.Process(target=Random_Forest.Random_Forest, args=(SET_PARAMS.pathHyperParameters + tag, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames))
+    threads.append(t)
+    t.start()
 
     for process in threads:     
         process.join()

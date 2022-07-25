@@ -252,6 +252,19 @@ class IsolationForest():
         prediction = self.model.predict(X)
         y_predict = (prediction[0] -1) /(-2)
         return y_predict
+
+class LocalOutlierFactor():
+    def __init__(self, path):
+        self.model = pickle.load(open(path, 'rb'))
+    
+    def Predict(self, X):
+        prediction = self.model.predict(X)
+        y_predict = (prediction[0] -1) /(-2)
+        return y_predict
+
+    def FeatureExtraction(self, X):
+        y_predict = 1/self.model.score_samples(X)
+        return y_predict
 #######################################
 # PREDICT WHETHER THERE IS AN ANOMALY #
 #######################################

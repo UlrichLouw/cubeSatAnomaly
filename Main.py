@@ -351,6 +351,7 @@ def main(args):
     BufferValue = params["BufferValue"]
     BufferStep = params["BufferStep"]
     treeDepth = params["treeDepth"]
+    combination = params["combination"]
 
     SET_PARAMS.NumberOfIntegrationSteps = params["NumberOfIntegrationSteps"]
 
@@ -612,10 +613,19 @@ def main(args):
                         SET_PARAMS.SensorIsolator = "None"
                         SET_PARAMS.SensorRecoveror = "None"
 
-                    
-                    if prediction == "DecisionTrees" or prediction == "RandomForest" or isolation == "RandomForest" or isolation == "DecisionTrees":
-                        for depth in treeDepth:
-                            SET_PARAMS.treeDepth = depth
+                    if prediction == isolation or combination:
+                        if prediction == "DecisionTrees" or prediction == "RandomForest" or isolation == "RandomForest" or isolation == "DecisionTrees":
+                            for depth in treeDepth:
+                                SET_PARAMS.treeDepth = depth
+                                for i in range(numFaultStart, SET_PARAMS.Number_of_multiple_orbits+1):
+                                    numProcess += 1
+                                    D = Single_Satellite(i, s_list, t_list, J_t, fr)
+
+                                    t = multiprocessing.Process(target=loop, args=(i, D, SET_PARAMS))
+                                    threads.append(t)
+                                    t.start()
+                                    print("Beginning of", extraction, prediction, isolation, recovery, i)
+                        else:
                             for i in range(numFaultStart, SET_PARAMS.Number_of_multiple_orbits+1):
                                 numProcess += 1
                                 D = Single_Satellite(i, s_list, t_list, J_t, fr)
@@ -624,15 +634,6 @@ def main(args):
                                 threads.append(t)
                                 t.start()
                                 print("Beginning of", extraction, prediction, isolation, recovery, i)
-                    else:
-                        for i in range(numFaultStart, SET_PARAMS.Number_of_multiple_orbits+1):
-                            numProcess += 1
-                            D = Single_Satellite(i, s_list, t_list, J_t, fr)
-
-                            t = multiprocessing.Process(target=loop, args=(i, D, SET_PARAMS))
-                            threads.append(t)
-                            t.start()
-                            print("Beginning of", extraction, prediction, isolation, recovery, i)
                 
         if includeNone:
             temp = SET_PARAMS.SensorFDIR

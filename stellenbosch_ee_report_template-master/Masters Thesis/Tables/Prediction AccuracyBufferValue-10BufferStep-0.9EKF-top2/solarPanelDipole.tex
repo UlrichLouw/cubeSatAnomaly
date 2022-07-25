@@ -1,0 +1,336 @@
+\begin{table*}[] 
+\caption{Prediction Accuracy for various methods} 
+\label{Table: Prediction Accuracy-solarPanelDipole} 
+\centering 
+\begin{tabular} 
+ {@{}ccccccccccccccc@{}} 
+\toprule 
+\multicolumn{2}{c}{\textbf{Orbits}} & 
+\multicolumn{2}{c}{\textbf{1}} & 
+\multicolumn{2}{c}{\textbf{2}} & 
+\multicolumn{2}{c}{\textbf{3}} & 
+\multicolumn{2}{c}{\textbf{4}} & 
+\multicolumn{2}{c}{\textbf{5}} & 
+\multicolumn{2}{c}{\textbf{30}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{2}{*}{Detection Strategy}} & 
+\multicolumn{1}{c|}{\multirow{2}{*}{Recovery Strategy}} & 
+\multicolumn{12}{c|}{Metric ($\theta$)}
+ \\ \cmidrule(l){3-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std} & 
+\multicolumn{1}{c|}{Mean} & 
+\multicolumn{1}{c|}{Std}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{3}{*}{DecisionTrees100}} & 
+\multicolumn{1}{c|}{\multirow{18}{*}{EKF-ignore}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5973544973544973}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4904737805953121}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5995941945421754}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4900184874699066}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6002819816903164}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4898789407210143}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.601639805788104}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4895942147471248}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5977992366248405}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4903155341613822}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5962747876895882}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4904430533546645}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5954144620811287}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4908549419140348}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6012692130543185}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4896438320676023}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6062185043473861}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48855350013026766}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6056954423585822}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4886852927139004}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6083087785033354}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48809496078109815}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6302960750732063}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.482477678213209}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5954144620811287}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.4908549419140348}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6012692130543185}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4896438320676023}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6062185043473861}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48855350013026766}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6056954423585822}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4886852927139004}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6083087785033354}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48809496078109815}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6302960750732063}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.482477678213209}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{\multirow{3}{*}{RandomForest100}} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7298059964726631}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.44409907425854606}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7252450895782465}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4464008207742666}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7192576151176437}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.44928384671372973}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7191293337152387}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.449375768254039}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7187349605359363}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4495846662185043}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7070266279412227}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4549834976716631}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7485008818342151}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.433913030650396}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.736179553948319}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4405201238075346}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7345999236396775}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4414298199546593}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7331929333839637}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4422047987604185}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7307969846898901}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4434522297306521}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7169603750467402}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.45036229238144226}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7485008818342151}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.433913030650396}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.736179553948319}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4405201238075346}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7345999236396775}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4414298199546593}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7331929333839637}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4422047987604185}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7307969846898901}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4434522297306521}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7169603750467402}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.45036229238144226}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{3}{*}{SVM}} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6878306878306878}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4634193660313494}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6870647002898811}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4637284107822456}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6862803638798467}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.46404279631811507}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6872107137492431}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.46366542252551735}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6902728912251043}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4623701549456249}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.671741262076692}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4691922083658319}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7738977072310406}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4183430555126282}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7797367217163843}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41440079423046416}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7811540526484001}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41345331378090117}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7821713056651045}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41276591582668753}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7831343289616375}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41210738680375475}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7959241656784712}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4029590633604743}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7738977072310406}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4183430555126282}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7797367217163843}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41440079423046416}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7811540526484001}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41345331378090117}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7821713056651045}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41276591582668753}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7831343289616375}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.41210738680375475}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7959241656784712}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4029590633604743}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{3}{*}{DecisionTrees100}} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6520282186948854}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.476369019980534}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.634777995787224}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48120142205442}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6291454786468403}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.482783746090266}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6244776947724694}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4840092388605909}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6223471002722164}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4845902929326745}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.5925833849848821}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{0.49087635790082257}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6481481481481481}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4775901528807855}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6228749910199389}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4840073791702798}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6226796066624433}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4842907868209248}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6179971851590613}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4854976366373708}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6151877322570322}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4862217465272384}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6273747557501157}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48341928286519686}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6481481481481481}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4775901528807855}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6228749910199389}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4840073791702798}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6226796066624433}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4842907868209248}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6179971851590613}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4854976366373708}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6151877322570322}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4862217465272384}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6273747557501157}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48341928286519686}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{3}{*}{RandomForest100}} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7610229276895943}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4264963214290609}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7556657576201454}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.42968444033993386}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7525281268987062}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.431520617605317}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7515324027035659}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4321123677697317}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7491716107539301}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4334541761520573}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7311319842456814}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.44315205001696495}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7784832451499119}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4153041072313215}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7633379018907732}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4246967963722825}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7598764758270234}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.42690852195698287}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7581898467309623}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4279885151531729}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7568251977868153}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.42884259737556285}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.73865000838139}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.43917861581150863}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7784832451499119}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4153041072313215}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7633379018907732}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4246967963722825}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7598764758270234}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.42690852195698287}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7581898467309623}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4279885151531729}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.7568251977868153}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.42884259737556285}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.73865000838139}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.43917861581150863}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{3}{*}{SVM}} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.682363315696649}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.46559838296473927}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6615837033429462}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.47270271535139213}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6574785377837945}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.47421554412042294}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6525164152405085}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4758434789284268}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.649680210309141}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4767797333475947}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6486882642187409}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.47731942732133986}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6582010582010582}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4743544137662531}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6370709046956622}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48038466110463374}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6298511844506084}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48243668062170125}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6265939958145917}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4833784783301991}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6243575454437735}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4840109265953266}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6167535127977141}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48615262276354654}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6582010582010582}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4743544137662531}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6370709046956622}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48038466110463374}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6298511844506084}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48243668062170125}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6265939958145917}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4833784783301991}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6243575454437735}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4840109265953266}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.6167535127977141}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48615262276354654}}
+ \\ \midrule 
+\multicolumn{1}{|c|}{\multirow{2}{*}{None}} & 
+\multicolumn{1}{c|}{Failure Design} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.372663139329806}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4835561634054754}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.37245394667072207}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.483500965538191}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.37244299436544576}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4834980903309722}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.3724375182128077}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48349665272736275}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.37246949966987586}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.48350509085379423}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.3727899009897088}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.4835894486549117}}
+ \\ \cmidrule(l){2-14} 
+\multicolumn{1}{|c|}{} & 
+\multicolumn{1}{c|}{Perfect Design} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}} & 
+\multicolumn{1}{c|}{\color{green}\textbf{1.0}} & 
+\multicolumn{1}{c|}{\color{red}\textbf{0.0}}
+ \\ \bottomrule 
+\end{tabular} 
+\end{table*} 

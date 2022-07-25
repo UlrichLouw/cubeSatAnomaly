@@ -406,7 +406,7 @@ class SET_PARAMS:
     Sun_sensor_length = 0.028
     Sun_sensor_width = 0.023
     Fine_sun_sensor_position = np.array(([Lx/2, 0, Lz/2])) # x, y, en z 
-    Fine_sun_sensor_FOV = 180 # Field of view in degrees
+    Fine_sun_sensor_FOV = 180 # Field of view in degre] #es
     Fine_sun_sensor_angle = Fine_sun_sensor_FOV/2 # The angle use to check whether the dot product angle is within the field of view
     Fine_sun_noise = 1e-3                   #standard deviation away from where the actual sun is
     # Define sun sensor dimensions

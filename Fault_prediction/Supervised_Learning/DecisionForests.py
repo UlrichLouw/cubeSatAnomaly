@@ -5,7 +5,18 @@ from sklearn.metrics import confusion_matrix
 import numpy as np
 from Simulation.Parameters import SET_PARAMS
 from pathlib import Path
+import matplotlib
 import matplotlib.pyplot as plt
+import dot2tex
+import pydotplus
+
+matplotlib.use("pgf")
+matplotlib.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 
 def DecisionTreeAllAnomalies(path, featureExtractionMethod, constellation, multi_class, lowPredictionAccuracy, MovingAverage, includeAngularMomentumSensors, includeModelled, X, Y, NBType, treeDepth, ColumnNames, ClassNames, anomalyNames):
     X_list = []
@@ -54,8 +65,18 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, constellation, multi
     # Beform a decision tree on the X and Y matrices
     # This must however include the moving average
     ColumnNames = ColumnNames.to_list()
+    columnList = []
 
-    ClassNames = ["Anomaly", "Normal"]
+    for col in ColumnNames:
+        if 'Moving Average' in col:
+            columnList.append('DMD' + col.split('Moving Average')[1])
+        elif 'Magnetometer' in col:
+            columnList.append('Mag' + col.split('Magnetometer')[1])
+        else:
+            columnList.append(col)
+        
+    ColumnNames = columnList
+    ClassNames = ["Normal", "Anomaly"]
     for depth in treeDepth:
         if lowPredictionAccuracy:
             clf = tree.DecisionTreeClassifier(max_depth = depth)
@@ -78,42 +99,68 @@ def DecisionTreeAllAnomalies(path, featureExtractionMethod, constellation, multi
 
         print('Decision Trees', cm)
 
-        fontsize = 20
+        fontsize = 8
 
         path_to_folder = Path(path)
         path_to_folder.mkdir(exist_ok=True)
 
+        figSize = (9, 6)
+        file = str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree'
+
+        # dot_data = tree.export_graphviz(clf, out_file=None, 
+        #                         class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True, 
+        #                         special_characters=True) 
+        # graph = pydotplus.graph_from_dot_data(dot_data)
+        # graph.write_png(file + '.png')
+        # graph.write_svg(file + ".svg")
+        # graph.write_ps(file + ".ps")
+
         if lowPredictionAccuracy:
             pickle.dump(clf, open(path + '/DecisionTreesBinaryClassLowAccuracy' + str(depth) + '.sav', 'wb'))
             if SET_PARAMS.Visualize:
-                fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
-                fig.savefig(path + '/DecisionTreeBinaryClassLowAccuracy' + str(depth) + '.png')
+                fig = plt.figure(figsize = figSize, dpi = 300)
+                # tree.plot_tree(clf, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize, label = 'all', rounded = True, proportion = True)
+                tree.export_graphviz(clf, out_file = file, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True)
+                dot2tex.dot2tex(file, format='tikz', crop=True)
+                fig.tight_layout()
+                # fig.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree.pgf'))
         elif multi_class and constellation:
             #! ClassNames = ["First", "Second", "Third", "Fourth", "Fifth"]
             pickle.dump(clf, open(path + '/ConstellationDecisionTreesMultiClass' + str(depth) + '.sav', 'wb'))
             if SET_PARAMS.Visualize:
-                fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, feature_names = anomalyNames, filled=True, max_depth = 2, fontsize = fontsize)
-                fig.savefig(path + '/ConstellationDecisionTreeMultiClass' + str(depth) + '.png')
+                fig = plt.figure(figsize = figSize, dpi = 300)
+                # tree.plot_tree(clf, feature_names = anomalyNames, filled=True, max_depth = 2, fontsize = fontsize, label = 'all', rounded = True, proportion = True)
+                tree.export_graphviz(clf, out_file = file, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True)
+                dot2tex.dot2tex(file, format='tikz', crop=True)
+                fig.tight_layout()
+                # fig.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree.pgf'))
         elif constellation:
             pickle.dump(clf, open(path + '/ConstellationDecisionTreesBinaryClass' + str(depth) + '.sav', 'wb'))
 
             if SET_PARAMS.Visualize:
-                fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
-                fig.savefig(path + '/ConstellationDecisionTreeBinaryClass' + str(depth) + '.png')
+                fig = plt.figure(figsize = figSize, dpi = 300)
+                # tree.plot_tree(clf, class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize,  precision = 2, label = 'all', rounded = True, proportion = True)
+                tree.export_graphviz(clf, out_file = file, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True)
+                dot2tex.dot2tex(file, format='tikz', crop=True)
+                fig.tight_layout()
+                # fig.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree.pgf'))
 
         elif multi_class:
             pickle.dump(clf, open(path + '/DecisionTreesMultiClass' + str(depth) + '.sav', 'wb'))
             if SET_PARAMS.Visualize:
-                fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, class_names = anomalyNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
-                fig.savefig(path + '/DecisionTreeMultiClass' + str(depth) + '.png')
+                fig = plt.figure(figsize = figSize, dpi = 300)
+                # tree.plot_tree(clf, class_names = anomalyNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize,  precision = 2, label = 'all', rounded = True, proportion = True)
+                tree.export_graphviz(clf, out_file = file, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True)
+                dot2tex.dot2tex(file, format='tikz', crop=True)
+                fig.tight_layout()
+                # fig.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree.pgf'))
         else:
             pickle.dump(clf, open(path + '/DecisionTreesBinaryClass' + str(depth) + '.sav', 'wb'))
 
-            if SET_PARAMS.Visualize:
-                fig = plt.figure(figsize=(25,20))
-                tree.plot_tree(clf, class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize)
-                fig.savefig(path + '/DecisionTreeBinaryClass' + str(depth) + '.png')
+        #     if SET_PARAMS.Visualize:
+        #         fig = plt.figure(figsize = figSize, dpi = 300)
+        #         # tree.plot_tree(clf, class_names = ClassNames, feature_names = ColumnNames, filled=True, max_depth = 2, fontsize = fontsize,  precision = 2, label = 'all', rounded = True, proportion = True)
+        #         tree.export_graphviz(clf, out_file = file, feature_names = ColumnNames, filled=True, max_depth = 2, label = 'all', rounded = True, proportion = True)
+        #         dot2tex.dot2tex(file, format='tikz', crop=True)
+        #         fig.tight_layout()
+        #         # fig.savefig(Path(str(Path(__file__).parent.resolve()).split("/cubeSatAnomaly")[0] + "/stellenbosch_ee_report_template-master/Masters Thesis/Figures/" + 'DecisionTree.pgf'))

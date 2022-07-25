@@ -421,13 +421,13 @@ class Dynamics:
 
         #! This needs to change depending on whether include modelled vectors are active or not
 
-        # Sensors_X = np.concatenate([self.Orbit_Data["Sun"],
-        #                                 self.Orbit_Data["Magnetometer"],
-        #                                 self.Orbit_Data["Earth"]])
+        Sensors_X = np.concatenate([self.Orbit_Data["Sun"],
+                                        self.Orbit_Data["Magnetometer"],
+                                        self.Orbit_Data["Earth"]])
 
-        Sensors_X = np.concatenate([self.Orbit_Data["Sun"], modelledSun,
-                    self.Orbit_Data["Magnetometer"], modelledMagnetometer, 
-                    self.Orbit_Data["Earth"], modelledEarth])
+        # Sensors_X = np.concatenate([self.Orbit_Data["Sun"], modelledSun,
+        #             self.Orbit_Data["Magnetometer"], modelledMagnetometer, 
+        #             self.Orbit_Data["Earth"], modelledEarth])
 
         if SET_PARAMS.SensorFDIR:
             self.DefineIfFault()
@@ -465,16 +465,18 @@ class Dynamics:
 
         MovingAverageDict = {}
 
-        if SET_PARAMS.FeatureExtraction == "DMD":         
-
+        if SET_PARAMS.FeatureExtraction == "DMD":    
             if self.t == SET_PARAMS.time:
-                # Initiating parameters for SensorPredictions
+                    # Initiating parameters for SensorPredictions
                 self.SensePredDMDALL = SensorPredictionsDMD(Sensors_X, "ALL")             
 
 
             self.MovingAverage = self.SensePredDMDALL.MovingAverage(Sensors_X, Sensors_Y)
 
-            self.MovingAverage = self.MovingAverage.flatten()              
+            self.MovingAverage = self.MovingAverage.flatten() 
+
+        elif SET_PARAMS.FeatureExtraction == "LOF":
+            self.LocalOutlierFactor = self.LOF.FeatureExtraction(np.array([np.concatenate([Sensors_X])]))
 
         return Sensors_X, Sensors_Y, MovingAverageDict
 
@@ -485,10 +487,15 @@ class Dynamics:
         predictedFailure = False
 
         if SET_PARAMS.FeatureExtraction == "DMD":
-            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
+            # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
+            Sensors_X = np.array([np.concatenate([Sensors_X, self.MovingAverage])])
         
+        elif SET_PARAMS.FeatureExtraction == "LOF":
+            # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.LocalOutlierFactor])])
+            Sensors_X = np.array([np.concatenate([Sensors_X, self.LocalOutlierFactor])])        
         elif SET_PARAMS.FeatureExtraction == "None":
-            Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])        
+            # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
+            Sensors_X = np.array([np.concatenate([Sensors_X])])     
 
         if SET_PARAMS.prefectNoFailurePrediction and self.implementedFault == "None":
             predictedFailure = False
@@ -603,10 +610,15 @@ class Dynamics:
         if predictedFailure:
 
             if SET_PARAMS.FeatureExtraction == "DMD":
-                Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
-            
+                # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.MovingAverage])])
+                Sensors_X = np.array([np.concatenate([Sensors_X, self.MovingAverage])])
+        
+            elif SET_PARAMS.FeatureExtraction == "LOF":
+                # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"], self.LocalOutlierFactor])])
+                Sensors_X = np.array([np.concatenate([Sensors_X, self.LocalOutlierFactor])])        
             elif SET_PARAMS.FeatureExtraction == "None":
-                Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
+                # Sensors_X = np.array([np.concatenate([Sensors_X, self.Orbit_Data["Angular momentum of wheels"]])])      
+                Sensors_X = np.array([np.concatenate([Sensors_X])])          
             
             #! This should account for multiple predictions of failures
             if SET_PARAMS.SensorIsolator == "PERFECT":
@@ -1036,34 +1048,43 @@ class Single_Satellite(Dynamics):
         self.RKF = RKF()                            # Rate Kalman_filter
         self.EKF = EKF()                            # Extended Kalman_filter
         self.MovingAverage = 0
+        self.LocalOutlierFactor = 0
         self.predictedFailureValue = 0
         self.sensors_kalman = SET_PARAMS.kalmanSensors #Sun_Sensor, Earth_Sensor, Magnetometer
         self.implementedFailedSensor = "None"
 
         self.moon = Moon()
 
-        if SET_PARAMS.SensorFDIR:
-            if SET_PARAMS.FeatureExtraction == "DMD":
-                self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/RandomForestPhysicsEnabledDMDMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineBinaryClass.sav')
-                self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/StateVectorMachineMultiClass.sav')
-                self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesBernoulliBinaryClass.sav')
-                self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/NaiveBayesGaussianBinaryClass.sav')
-                self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'PhysicsEnabledDMDMethod/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+        self.LOF = FaultDetection.LocalOutlierFactor(path = SET_PARAMS.pathHyperParameters + 'None/LOFBinaryClass.sav')
 
-            elif SET_PARAMS.FeatureExtraction == "None":
-                self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
-                self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineBinaryClass.sav')
-                self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineMultiClass.sav')
-                self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesBernoulliBinaryClass.sav')
-                self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesGaussianBinaryClass.sav')
-                self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'None/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+        if SET_PARAMS.SensorFDIR:
+            if SET_PARAMS.SensorPredictor == "DecisionTrees":
+                self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            if SET_PARAMS.SensorIsolator == "DecisionTrees":
+                self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            if SET_PARAMS.SensorPredictor == "RandomForest":
+                self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            if SET_PARAMS.SensorIsolator == "RandomForest":
+                self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            if SET_PARAMS.SensorPredictor == "SVM":
+                self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/StateVectorMachineBinaryClass.sav')
+            if SET_PARAMS.SensorIsolator == "SVM":
+                self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/StateVectorMachineMultiClass.sav')
+            if SET_PARAMS.SensorPredictor == "IsolationForest":
+                self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+            # if SET_PARAMS.SensorPredictor == "LOF":
+                # self.LOF = FaultDetection.LocalOutlierFactor(path = SET_PARAMS.pathHyperParameters + SET_PARAMS.FeatureExtraction + '/LOFBinaryClass.sav')
+            # elif SET_PARAMS.FeatureExtraction == "None":
+            #     self.DecisionTreeBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            #     self.DecisionTreeMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            #     self.RandomForestBinary = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            #     self.RandomForestMulti = FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/RandomForestMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
+            #     self.SVM = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineBinaryClass.sav')
+            #     self.SVMmulti = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/StateVectorMachineMultiClass.sav')
+            #     self.NBBernoulli = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesBernoulliBinaryClass.sav')
+            #     self.NBGaussian = FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/NaiveBayesGaussianBinaryClass.sav')
+            #     self.IsolationForest = FaultDetection.IsolationForest(path = SET_PARAMS.pathHyperParameters + 'None/IsolationForest' + str(SET_PARAMS.Contamination) + '.sav')
+            #     self.LOF = FaultDetection.LocalOutlierFactor(path = SET_PARAMS.pathHyperParameters + 'None/LOFBinaryClass.sav')
         else:
             self.DecisionTreeBinary = None #FaultDetection.sklearnBinaryPredictionModels(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesBinaryClass' + str(SET_PARAMS.treeDepth) + '.sav')
             self.DecisionTreeMulti = None #FaultDetection.DecisionTreePredict(path = SET_PARAMS.pathHyperParameters + 'None/DecisionTreesMultiClass' + str(SET_PARAMS.treeDepth) + '.sav')
@@ -1198,7 +1219,8 @@ class Single_Satellite(Dynamics):
             "True Negatives",
             "SolarPanelDipole Torques_x",
             "SolarPanelDipole Torques_y",
-            "SolarPanelDipole Torques_z"
+            "SolarPanelDipole Torques_z",
+            "LOF"
             ]
         ####################################################
         #  THE ORBIT_DATA DICTIONARY IS USED TO STORE ALL  #
@@ -1498,6 +1520,7 @@ class Single_Satellite(Dynamics):
             self.NsolarMag[0],
             self.NsolarMag[1],
             self.NsolarMag[2],
+            self.LocalOutlierFactor
             ]
 
 
