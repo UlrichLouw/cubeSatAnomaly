@@ -35,8 +35,8 @@ Contamination: [0.1]
 combination: True
 
 featureExtractionMethods: ['None'] #,'LOF', 'DMD']
-predictionMethods: ["IsolationForest", "LOF", "DecisionTrees", "RandomForest", "SVM"]
-isolationMethods: [70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0, 100.0] #, ] #[100.0] #["DecisionTrees", "RandomForest", "SVM"]
+predictionMethods: [70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0, 100.0] #["DecisionTrees", "RandomForest", "SVM", "LOF", "IsolationForest"]
+isolationMethods:  ["DecisionTrees"] #, "RandomForest"] #, "SVM"]
 recoveryMethods: ["EKF-ignore"] #"EKF-ignore", 
 recoverMethodsWithoutPrediction: ["None", "EKF-top2"]
 

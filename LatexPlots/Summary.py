@@ -112,7 +112,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     # method = "NoneNoneNoneNone" + SET_PARAMS.Fault_names_values[index]
@@ -124,7 +124,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(legendName)
 
                 if len(legendNames) > 1:
@@ -165,7 +165,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -174,7 +174,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                     legendNames.append(str("None"))
 
@@ -214,7 +214,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -223,7 +223,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
@@ -261,7 +261,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -270,7 +270,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
@@ -308,7 +308,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -317,7 +317,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
@@ -356,7 +356,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -365,7 +365,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
@@ -404,7 +404,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -413,7 +413,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
@@ -452,7 +452,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                             perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                             index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
                         legendNames.append(legendName)  
-                        plt.plot(range(len(plotData)), plotData)
+                        plt.plot(range(len(plotData)), plotData,alpha=0.7)
 
                 if includeNone:
                     legendName, plotData = dataMethodPlot(recovery = "None", extraction = "None", isolation = "None",
@@ -461,7 +461,7 @@ def SummaryPlots(legend, BufferValue, BufferStep, RecoveryBuffer, PredictionBuff
                                                         perfectNoFailurePrediction = perfectNoFailurePrediction, legend = legend, 
                                                         index = index, recoverMethodsWithoutPrediction = recoverMethodsWithoutPrediction, Data = Data)
 
-                    plt.plot(range(len(plotData)), plotData)
+                    plt.plot(range(len(plotData)), plotData,alpha=0.7)
                     legendNames.append(str("None"))
 
                 if len(legendNames) > 1:
