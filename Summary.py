@@ -333,7 +333,7 @@ if __name__ == "__main__":
 
     includeNone = True
 
-    nameList = ["Prediction Accuracy", "Pointing Metric", "Estimation Metric"]
+    nameList = ["Isolation Accuracy", "Prediction Accuracy", "Pointing Metric", "Estimation Metric"]
 
     orbitsToLatex = [1, 2, 3, 4, 5, 30]
 
@@ -503,7 +503,7 @@ if __name__ == "__main__":
 
             dataFrame.columns = headers
 
-            if name == "Prediction Accuracy":
+            if name == "Prediction Accuracy" or name == "Isolation Accuracy":
                 highlightMax = True
                 highlightMin = False
             else:

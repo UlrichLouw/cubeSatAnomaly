@@ -35,6 +35,7 @@ def dataMethodPlot(recovery, extraction, isolation, prediction, bufferValue, buf
     if perfectNoFailurePrediction:
         method += str("perfectNoFailurePrediction")
 
+    print(method)
     plotData = [float(x) for x in Data[Data["Unnamed: 0"] == method].values[0] if x != method]
 
     if legend == "recovery":

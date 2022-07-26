@@ -99,9 +99,9 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
                 plt.figure(figsize = (width*cm, height*cm))
 
                 if plotStyle == "Scatter":
-                    plt.scatter(range(len(Datapgf[[col]])), Datapgf[[col]], linewidth = linewidth)
+                    plt.scatter(range(len(Datapgf[[col]])), Datapgf[[col]], linewidth = linewidth, color = (0, 0, 0.5))
                 else:
-                    plt.plot(range(len(Datapgf[[col]])), Datapgf[[col]], linewidth = linewidth)
+                    plt.plot(range(len(Datapgf[[col]])), Datapgf[[col]], linewidth = linewidth, color = (0, 0, 0.5))
 
                 # if SET_PARAMS.Fault_names_values[index] == "None":
                 #     plt.title(col + " of Perfectly Designed Satellite", fontsize = int(width*1.2))
@@ -128,7 +128,7 @@ def MetricPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
 
                 plt.tight_layout()
 
-                path = path_of_execution + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"-" + SET_PARAMS.Model_or_Measured +"-General CubeSat Model/" + SET_PARAMS.Fault_names_values[index]
+                path = path_of_execution + "/FeatureExtraction-" + SET_PARAMS.FeatureExtraction + "/Predictor-" + SET_PARAMS.SensorPredictor+ "/Isolator-" + SET_PARAMS.SensorIsolator + "/Recovery-" + SET_PARAMS.SensorRecoveror +"/"+SET_PARAMS.Mode+"-" + SET_PARAMS.Model_or_Measured +"-General CubeSat Model/" + SET_PARAMS.Fault_names_values[index]
                 
                 if predictionBuffer:
                     path = path + "BufferValue-" + str(bufferValue) + "BufferStep-" + str(bufferStep) + str(recoveryBuffer) + "/"

@@ -549,9 +549,13 @@ class Dynamics:
 
             self.SensorsXstd.append(std)
 
-        elif SET_PARAMS.SensorPredictor == "Isolation_Forest":
+        elif SET_PARAMS.SensorPredictor == "IsolationForest":
             Sensors_X = Sensors_X #.reshape(1, Sensors_X.shape[1])
             predictedFailure = self.IsolationForest.Predict(Sensors_X)
+
+        elif SET_PARAMS.SensorPredictor == "LOF":
+            Sensors_X = Sensors_X #.reshape(1, Sensors_X.shape[1])
+            predictedFailure = self.LOF.Predict(Sensors_X)
 
         elif SET_PARAMS.SensorPredictor == "SBCvsORC":
             angle = Quaternion_functions.rad2deg(np.arccos(np.clip(np.dot(self.sensor_vectors["Sun_Sensor"]["Noise SBC"], self.A_ORC_to_SBC_est@self.sensor_vectors["Sun_Sensor"]["True ORC"]),-1,1)))

@@ -135,7 +135,7 @@ def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
                     plt.xlabel("Time: ($s$)", fontsize = int(width))
 
                     if 'Torque' in col:
-                        plt.ylabel("Torque: ($N \\cdot m$)", fontsize = int(width))
+                        plt.ylabel(col + ": ($N \\cdot m$)", fontsize = int(width))
 
                     # for ind in Datapgf.index:
                     #     if Datapgf.loc[ind,"Current fault binary"] == 1:
@@ -170,7 +170,7 @@ def VectorPlots(BufferValue, BufferStep, RecoveryBuffer, PredictionBuffer, Perfe
                     plt.xlabel("Time: ($s$)", fontsize = int(width))
 
                     if 'Torque' in col:
-                        plt.ylabel("Torque: ($N \\cdot m$)", fontsize = int(width))
+                        plt.ylabel(col + ": ($N \\cdot m$)", fontsize = int(width))
 
 
                     for eclipse in Eclipse:

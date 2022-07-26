@@ -5,7 +5,7 @@ Kalman_filter_use: "EKF"
 sensor_number: "ALL"
 Number_of_orbits: 30
 fixed_orbit_failure: 0
-Number_of_multiple_orbits: 3
+Number_of_multiple_orbits: 2
 skip: 20
 Number_of_satellites: 1
 k_nearest_satellites: 5
@@ -35,8 +35,8 @@ Contamination: [0.1]
 combination: True
 
 featureExtractionMethods: ['None'] #,'LOF', 'DMD']
-predictionMethods: [70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0, 100.0] #["DecisionTrees", "RandomForest", "SVM", "LOF", "IsolationForest"]
-isolationMethods:  ["DecisionTrees"] #, "RandomForest"] #, "SVM"]
+predictionMethods:  ["IsolationForest"] #, "LOF"]
+isolationMethods:  [70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 99.0, 100.0]
 recoveryMethods: ["EKF-ignore"] #"EKF-ignore", 
 recoverMethodsWithoutPrediction: ["None", "EKF-top2"]
 
